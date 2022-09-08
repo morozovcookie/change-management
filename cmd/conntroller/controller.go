@@ -9,9 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	v1 "github.com/morozovcookie/change-management/http/v1"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -34,27 +31,15 @@ func main() {
 
 	eg, ctx := errgroup.WithContext(ctx)
 
-	router := chi.NewRouter()
-	router.Use(middleware.RealIP, middleware.RequestID, middleware.Recoverer, middleware.Logger)
-	router.Mount(v1.ChangeRequestHandlerPathPrefix, v1.NewChangeRequestHandler())
-	router.Mount(v1.IncidentHandlerPathPrefix, v1.NewIncidentHandler())
-
-	srv := &http.Server{
-		Addr:              ":8080",
-		Handler:           router,
-		ReadTimeout:       time.Second * 30,
-		ReadHeaderTimeout: time.Second * 30,
-		WriteTimeout:      time.Second * 30,
-		IdleTimeout:       time.Minute * 3,
-		MaxHeaderBytes:    http.DefaultMaxHeaderBytes,
-	}
+	be := newBackend()
+	be.init(ctx)
 
 	logger.Info("starting application")
 
 	eg.Go(func() error {
-		logger.Info("starting http server", zap.String("host", srv.Addr))
+		logger.Info("starting http server", zap.String("host", be.apiServer.Addr))
 
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if err := be.apiServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			return err
 		}
 
@@ -73,7 +58,7 @@ func main() {
 	ctx, cancel = context.WithDeadline(context.Background(), time.Now().Add(time.Second*5))
 	defer cancel()
 
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := be.apiServer.Shutdown(ctx); err != nil {
 		logger.Error("stopping http server", zap.Error(err))
 	}
 
