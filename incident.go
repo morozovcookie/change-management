@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Incident represents a user appeal and service request.
 type Incident struct {
 	// ID is the incident unique identifier.
 	ID ID
