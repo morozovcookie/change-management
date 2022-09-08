@@ -37,6 +37,7 @@ func main() {
 	router := chi.NewRouter()
 	router.Use(middleware.RealIP, middleware.RequestID, middleware.Recoverer, middleware.Logger)
 	router.Mount(v1.ChangeRequestHandlerPathPrefix, v1.NewChangeRequestHandler())
+	router.Mount(v1.IncidentHandlerPathPrefix, v1.NewIncidentHandler())
 
 	srv := &http.Server{
 		Addr:              ":8080",
