@@ -18,3 +18,19 @@ services:
       - postgres
     ports:
       - '127.0.0.1:5432:5432'
+
+  controller-schema:
+    build:
+      context: ./../../
+      dockerfile: ./scripts/docker/controller-schema/Dockerfile
+    restart: on-failure
+    command:
+      - up
+    environment:
+      - POSTGRES_DSN=pgx://admin:admin@postgres:5432/cm?search_path=controller
+    networks:
+      - postgres
+    volumes:
+      - ./../../migrations:/migrations:ro
+    depends_on:
+      - postgres
