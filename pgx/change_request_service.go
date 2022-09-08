@@ -17,3 +17,8 @@ func NewChangeRequestService() *ChangeRequestService {
 func (svc *ChangeRequestService) CreateChangeRequest(ctx context.Context, crq *cm.ChangeRequest) error {
 	return nil
 }
+
+// FindChangeRequestByID returns change request by unique identifier.
+func (svc *ChangeRequestService) FindChangeRequestByID(ctx context.Context, id cm.ID) (*cm.ChangeRequest, error) {
+	return nil, nil
+}

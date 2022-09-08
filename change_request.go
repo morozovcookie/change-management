@@ -52,12 +52,15 @@ type ChangeRequest struct {
 	// CreatedAt is the UTC time when change request was created.
 	CreatedAt time.Time
 
-	// UpdateAt is the UTC time when change request was updated.
-	UpdateTime time.Time
+	// UpdatedAt is the UTC time when change request was updated.
+	UpdatedAt time.Time
 }
 
 // ChangeRequestService represents a service for manging ChangeRequest data.
 type ChangeRequestService interface {
 	// CreateChangeRequest creates a new change request.
 	CreateChangeRequest(ctx context.Context, crq *ChangeRequest) error
+
+	// FindChangeRequestByID returns change request by unique identifier.
+	FindChangeRequestByID(ctx context.Context, id ID) (*ChangeRequest, error)
 }

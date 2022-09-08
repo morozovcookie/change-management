@@ -12,6 +12,7 @@ import (
 const (
 	ChangeRequestHandlerPathPrefix = "/api/v1/change-requests"
 	CreateChangeRequestPathPrefix  = "/"
+	GetChangeRequestPathPrefix     = "/{changeRequestId}"
 )
 
 var _ http.Handler = (*ChangeRequestHandler)(nil)
@@ -33,6 +34,7 @@ func NewChangeRequestHandler(changeRequestSvc cm.ChangeRequestService) *ChangeRe
 	)
 
 	router.Post(CreateChangeRequestPathPrefix, handler.handleCreateChangeRequest)
+	router.Get(GetChangeRequestPathPrefix, handler.handleGetChangeRequest)
 
 	return handler
 }
@@ -102,4 +104,52 @@ func (h *ChangeRequestHandler) handleCreateChangeRequest(writer http.ResponseWri
 	}
 
 	encodeResponse(ctx, writer, http.StatusOK, newCreateChangeRequestResponse(crq))
+}
+
+type GetChangeRequestRequest struct {
+	id cm.ID
+}
+
+func decodeGetChangeRequestRequest(request *http.Request) *GetChangeRequestRequest {
+	return &GetChangeRequestRequest{
+		id: cm.ID(chi.URLParam(request, "changeRequestId")),
+	}
+}
+
+type GetChangeRequestResponse struct {
+	IsAutoClose bool   `json:"isAutoClose"`
+	CreatedAt   int64  `json:"createdAt"`
+	UpdateAt    int64  `json:"updateAt,omitempty"`
+	ID          string `json:"id"`
+	Type        string `json:"type"`
+	Summary     string `json:"summary"`
+	Description string `json:"description"`
+}
+
+func newGetChangeRequestResponse(crq *cm.ChangeRequest) *GetChangeRequestResponse {
+	return &GetChangeRequestResponse{
+		IsAutoClose: crq.IsAutoClose,
+		CreatedAt:   crq.CreatedAt.UnixMilli(),
+		UpdateAt:    crq.UpdatedAt.UnixMilli(),
+		ID:          crq.ID.String(),
+		Type:        crq.Type.String(),
+		Summary:     crq.Summary,
+		Description: crq.Description,
+	}
+}
+
+func (h *ChangeRequestHandler) handleGetChangeRequest(writer http.ResponseWriter, request *http.Request) {
+	var (
+		ctx     = request.Context()
+		decoded = decodeGetChangeRequestRequest(request)
+	)
+
+	crq, err := h.changeRequestSvc.FindChangeRequestByID(ctx, decoded.id)
+	if err != nil {
+		encodeErrorResponse(ctx, writer, err)
+
+		return
+	}
+
+	encodeResponse(request.Context(), writer, http.StatusOK, newGetChangeRequestResponse(crq))
 }
