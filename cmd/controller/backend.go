@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -42,13 +41,13 @@ func newBackend(cfg *Config, logger *zap.Logger) *backend {
 
 		apiRouter: apiRouter,
 		apiServer: &http.Server{
-			Addr:              ":8080",
+			Addr:              cfg.HTTP.Address,
 			Handler:           apiRouter,
-			ReadTimeout:       time.Second * 30,
-			ReadHeaderTimeout: time.Second * 30,
-			WriteTimeout:      time.Second * 30,
-			IdleTimeout:       time.Minute * 3,
-			MaxHeaderBytes:    http.DefaultMaxHeaderBytes,
+			ReadTimeout:       cfg.HTTP.ReadTimeout,
+			ReadHeaderTimeout: cfg.HTTP.ReadHeaderTimeout,
+			WriteTimeout:      cfg.HTTP.WriteTimeout,
+			IdleTimeout:       cfg.HTTP.IdleTimeout,
+			MaxHeaderBytes:    cfg.HTTP.MaxHeaderBytes,
 		},
 	}
 }

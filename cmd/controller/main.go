@@ -20,18 +20,20 @@ func main() {
 	}
 
 	loggerConfig := zap.NewProductionConfig()
+	loggerConfig.Level.SetLevel(cfg.logLevel)
+
 	logger, err := loggerConfig.Build()
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	logger = logger.Named("controller")
 
 	defer func(logger *zap.Logger) {
 		if syncErr := logger.Sync(); syncErr != nil {
 			log.Fatalln(syncErr)
 		}
 	}(logger)
+
+	logger = logger.Named("controller")
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
@@ -40,7 +42,7 @@ func main() {
 
 	be := newBackend(cfg, logger)
 	if err := be.init(ctx); err != nil {
-		logger.Error("init", zap.Error(err))
+		logger.Fatal("init", zap.Error(err))
 	}
 
 	logger.Info("starting application")
