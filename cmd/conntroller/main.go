@@ -14,11 +14,18 @@ import (
 )
 
 func main() {
+	cfg := NewConfig()
+	if err := cfg.Parse(); err != nil {
+		log.Fatalln(err)
+	}
+
 	loggerConfig := zap.NewProductionConfig()
 	logger, err := loggerConfig.Build()
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	logger = logger.Named("controller")
 
 	defer func(logger *zap.Logger) {
 		if syncErr := logger.Sync(); syncErr != nil {
@@ -31,8 +38,10 @@ func main() {
 
 	eg, ctx := errgroup.WithContext(ctx)
 
-	be := newBackend()
-	be.init(ctx)
+	be := newBackend(cfg, logger)
+	if err := be.init(ctx); err != nil {
+		logger.Error("init", zap.Error(err))
+	}
 
 	logger.Info("starting application")
 
@@ -61,6 +70,8 @@ func main() {
 	if err := be.apiServer.Shutdown(ctx); err != nil {
 		logger.Error("stopping http server", zap.Error(err))
 	}
+
+	be.pgxClient.Close()
 
 	if err := eg.Wait(); err != nil {
 		logger.Error("waiting for application be stopped", zap.Error(err))

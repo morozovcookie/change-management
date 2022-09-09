@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -9,20 +10,36 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	cm "github.com/morozovcookie/change-management"
 	v1 "github.com/morozovcookie/change-management/http/v1"
+	"github.com/morozovcookie/change-management/nanoid"
 	"github.com/morozovcookie/change-management/pgx"
+	"go.uber.org/zap"
 )
 
 type backend struct {
+	cfg    *Config
+	logger *zap.Logger
+
+	pgxClient *pgx.Client
+
+	identifierGenerator cm.IdentifierGenerator
+
 	changeRequestService cm.ChangeRequestService
 
 	apiRouter chi.Router
 	apiServer *http.Server
 }
 
-func newBackend() *backend {
+func newBackend(cfg *Config, logger *zap.Logger) *backend {
 	apiRouter := chi.NewRouter()
 
 	return &backend{
+		cfg:    cfg,
+		logger: logger,
+
+		pgxClient: pgx.NewClient(cfg.Pgx.Dsn.String(), logger.Named("pgx")),
+
+		identifierGenerator: nanoid.NewIdentifierGenerator(),
+
 		apiRouter: apiRouter,
 		apiServer: &http.Server{
 			Addr:              ":8080",
@@ -36,9 +53,15 @@ func newBackend() *backend {
 	}
 }
 
-func (be *backend) init(ctx context.Context) {
+func (be *backend) init(ctx context.Context) error {
+	if err := be.pgxClient.Connect(ctx); err != nil {
+		return fmt.Errorf("init backend: %w", err)
+	}
+
 	be.initServices(ctx)
 	be.setupAPIRoutes(ctx)
+
+	return nil
 }
 
 func (be *backend) setupAPIRoutes(_ context.Context) {
@@ -68,5 +91,5 @@ func (be *backend) initServices(ctx context.Context) {
 }
 
 func (be *backend) initChangeRequestService(_ context.Context) {
-	be.changeRequestService = pgx.NewChangeRequestService()
+	be.changeRequestService = pgx.NewChangeRequestService(be.pgxClient, be.identifierGenerator)
 }
