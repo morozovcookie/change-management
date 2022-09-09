@@ -1,6 +1,7 @@
 package cm
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -13,3 +14,10 @@ func (id ID) String() string {
 }
 
 const EmptyID = ID("")
+
+// IdentifierGenerator represents a service for generating unique identifier
+// value.
+type IdentifierGenerator interface {
+	// GenerateIdentifier returns a unique identifier value.
+	GenerateIdentifier(ctx context.Context) ID
+}
