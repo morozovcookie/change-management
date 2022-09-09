@@ -2,6 +2,7 @@ package pgx
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -32,9 +33,10 @@ func (svc *ChangeRequestService) CreateChangeRequest(ctx context.Context, crq *c
 
 	id, createdAt := svc.idGenerator.GenerateIdentifier(ctx), svc.timer.Time(ctx)
 
-	const query = "INSERT INTO change_requests (crq_id, crq_type, crq_summary, crq_description, crq_is_auto_close, " +
-		"created_at) VALUES ($1, $2, $3, $4, $5, $6)"
-	_, err := svc.db.Exec(ctx, query, id, crq.Type.String(), crq.Summary, crq.Description, crq.IsAutoClose, createdAt)
+	const query = "INSERT INTO controller.change_requests (crq_id, crq_type, crq_summary, crq_description, " +
+		"crq_is_auto_close, created_at) VALUES ($1, $2, $3, $4, $5, $6)"
+	_, err := svc.db.Exec(ctx, query, id, crq.Type.String(), crq.Summary, crq.Description, crq.IsAutoClose,
+		createdAt.UnixMilli())
 	if err != nil {
 		return fmt.Errorf("create change request: %w", err)
 	}
@@ -50,14 +52,14 @@ func (svc *ChangeRequestService) FindChangeRequestByID(ctx context.Context, id c
 	defer cancel()
 
 	const query = "SELECT crq_id, crq_type, crq_summary, crq_description, crq_is_auto_close, created_at, updated_at " +
-		"FROM change_requests WHERE crq_id = $1"
+		"FROM controller.change_requests WHERE crq_id = $1"
 
 	var (
 		crq = new(cm.ChangeRequest)
 
 		requestType string
 		createdAt   int64
-		updatedAt   int64
+		updatedAt   sql.NullInt64
 	)
 
 	err := svc.db.QueryRow(ctx, query, id.String()).Scan(&crq.ID, &requestType, &crq.Summary, &crq.Description,
@@ -70,7 +72,11 @@ func (svc *ChangeRequestService) FindChangeRequestByID(ctx context.Context, id c
 		return nil, fmt.Errorf("unsupported change request type: %s", requestType)
 	}
 
-	crq.CreatedAt, crq.UpdatedAt = time.UnixMilli(createdAt), time.UnixMilli(updatedAt)
+	crq.CreatedAt = time.UnixMilli(createdAt)
+
+	if updatedAt.Valid {
+		crq.UpdatedAt = time.UnixMilli(updatedAt.Int64)
+	}
 
 	return crq, nil
 }
