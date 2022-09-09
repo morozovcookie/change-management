@@ -9,8 +9,8 @@ import (
 )
 
 func encodeResponse(_ context.Context, writer http.ResponseWriter, status int, response interface{}) {
-	writer.WriteHeader(status)
 	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(status)
 
 	if response == nil {
 		return

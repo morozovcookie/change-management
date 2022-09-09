@@ -127,15 +127,20 @@ type GetChangeRequestResponse struct {
 }
 
 func newGetChangeRequestResponse(crq *cm.ChangeRequest) *GetChangeRequestResponse {
-	return &GetChangeRequestResponse{
+	resp := &GetChangeRequestResponse{
 		IsAutoClose: crq.IsAutoClose,
 		CreatedAt:   crq.CreatedAt.UnixMilli(),
-		UpdateAt:    crq.UpdatedAt.UnixMilli(),
 		ID:          crq.ID.String(),
 		Type:        crq.Type.String(),
 		Summary:     crq.Summary,
 		Description: crq.Description,
 	}
+
+	if !crq.UpdatedAt.IsZero() {
+		resp.UpdateAt = crq.UpdatedAt.UnixMilli()
+	}
+
+	return resp
 }
 
 func (h *ChangeRequestHandler) handleGetChangeRequest(writer http.ResponseWriter, request *http.Request) {
