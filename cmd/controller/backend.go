@@ -23,6 +23,7 @@ type backend struct {
 	identifierGenerator cm.IdentifierGenerator
 
 	changeRequestService cm.ChangeRequestService
+	incidentService      cm.IncidentService
 
 	apiRouter chi.Router
 	apiServer *http.Server
@@ -66,12 +67,13 @@ func (be *backend) init(ctx context.Context) error {
 func (be *backend) setupAPIRoutes(_ context.Context) {
 	be.apiRouter.Use(middleware.RealIP, middleware.RequestID, middleware.Recoverer, middleware.Logger)
 	be.apiRouter.Mount(v1.ChangeRequestHandlerPathPrefix, v1.NewChangeRequestHandler(be.changeRequestService))
-	be.apiRouter.Mount(v1.IncidentHandlerPathPrefix, v1.NewIncidentHandler())
+	be.apiRouter.Mount(v1.IncidentHandlerPathPrefix, v1.NewIncidentHandler(be.incidentService))
 }
 
 func (be *backend) initServices(ctx context.Context) {
 	ii := []func(context.Context){
 		be.initChangeRequestService,
+		be.initIncidentService,
 	}
 
 	quit := make(chan struct{}, 1)
@@ -91,4 +93,8 @@ func (be *backend) initServices(ctx context.Context) {
 
 func (be *backend) initChangeRequestService(_ context.Context) {
 	be.changeRequestService = pgx.NewChangeRequestService(be.pgxClient, be.identifierGenerator)
+}
+
+func (be *backend) initIncidentService(_ context.Context) {
+	be.incidentService = pgx.NewIncidentService(be.pgxClient, be.identifierGenerator)
 }

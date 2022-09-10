@@ -27,4 +27,7 @@ type Incident struct {
 type IncidentService interface {
 	// CreateIncident creates a new incident.
 	CreateIncident(ctx context.Context, incident *Incident) error
+
+	// FindIncidentByID returns an incident by unique identifier.
+	FindIncidentByID(ctx context.Context, id ID) (*Incident, error)
 }
