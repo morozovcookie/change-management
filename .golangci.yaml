@@ -1,0 +1,21 @@
+run:
+  tests: false
+linters:
+  enable-all: true
+  disable:
+    - ireturn
+    - varnamelen
+    - gomnd
+    - exhaustruct
+    - goerr113
+    - contextcheck
+    - interfacer # deprecated
+    - maligned # deprecated: use fieldaligment
+    - scopelint # deprecated: use exportloopref
+    - structcheck # deprecated: use unused
+    - exhaustivestruct # deprecated: use exhaustruct
+    - ifshort # deprecated
+    - nosnakecase # deprecated: use revive
+    - varcheck # deprecated: use unused
+    - deadcode # deprecated: use unused
+    - golint # deprecated: use revive

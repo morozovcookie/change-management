@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os/signal"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -19,10 +21,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	loggerConfig := zap.NewProductionConfig()
-	loggerConfig.Level.SetLevel(cfg.logLevel)
-
-	logger, err := loggerConfig.Build()
+	logger, err := createLogger(cfg.logLevel)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -32,8 +31,6 @@ func main() {
 			log.Fatalln(syncErr)
 		}
 	}(logger)
-
-	logger = logger.Named("controller")
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
@@ -51,7 +48,7 @@ func main() {
 		logger.Info("starting http server", zap.String("host", be.apiServer.Addr))
 
 		if err := be.apiServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			return err
+			return fmt.Errorf("listen and serve http server: %w", err)
 		}
 
 		return nil
@@ -59,10 +56,7 @@ func main() {
 
 	logger.Info("application started")
 
-	select {
-	case <-ctx.Done():
-		break
-	}
+	<-ctx.Done()
 
 	logger.Info("stopping application")
 
@@ -80,4 +74,16 @@ func main() {
 	}
 
 	logger.Info("application stopped")
+}
+
+func createLogger(logLevel zapcore.Level) (*zap.Logger, error) {
+	loggerConfig := zap.NewProductionConfig()
+	loggerConfig.Level.SetLevel(logLevel)
+
+	logger, err := loggerConfig.Build()
+	if err != nil {
+		return nil, fmt.Errorf("create logger: %w", err)
+	}
+
+	return logger.Named("controller"), nil
 }

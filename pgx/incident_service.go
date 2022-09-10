@@ -4,8 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	cm "github.com/morozovcookie/change-management"
 	"time"
+
+	cm "github.com/morozovcookie/change-management"
 )
 
 var _ cm.IncidentService = (*IncidentService)(nil)

@@ -3,10 +3,11 @@ package v1
 import (
 	"context"
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
-	cm "github.com/morozovcookie/change-management"
 	"io"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	cm "github.com/morozovcookie/change-management"
 )
 
 const (
@@ -110,7 +111,7 @@ type GetChangeRequestRequest struct {
 	id cm.ID
 }
 
-func decodeGetChangeRequestRequest(request *http.Request) *GetChangeRequestRequest {
+func decodeGetChangeRequestRequest(_ context.Context, request *http.Request) *GetChangeRequestRequest {
 	return &GetChangeRequestRequest{
 		id: cm.ID(chi.URLParam(request, "changeRequestId")),
 	}
@@ -146,7 +147,7 @@ func newGetChangeRequestResponse(crq *cm.ChangeRequest) *GetChangeRequestRespons
 func (h *ChangeRequestHandler) handleGetChangeRequest(writer http.ResponseWriter, request *http.Request) {
 	var (
 		ctx     = request.Context()
-		decoded = decodeGetChangeRequestRequest(request)
+		decoded = decodeGetChangeRequestRequest(ctx, request)
 	)
 
 	crq, err := h.changeRequestSvc.FindChangeRequestByID(ctx, decoded.id)

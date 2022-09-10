@@ -35,6 +35,7 @@ func (svc *ChangeRequestService) CreateChangeRequest(ctx context.Context, crq *c
 
 	const query = "INSERT INTO controller.change_requests (crq_id, crq_type, crq_summary, crq_description, " +
 		"crq_is_auto_close, created_at) VALUES ($1, $2, $3, $4, $5, $6)"
+
 	_, err := svc.db.Exec(ctx, query, id, crq.Type.String(), crq.Summary, crq.Description, crq.IsAutoClose,
 		createdAt.UnixMilli())
 	if err != nil {

@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"go.uber.org/zap/zapcore"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
 	"time"
+
+	"go.uber.org/zap/zapcore"
 )
 
 type PgxConfig struct {
@@ -214,6 +215,7 @@ type Config struct {
 
 func NewConfig() *Config {
 	const prefix = "CONTROLLER_"
+
 	return &Config{
 		Pgx:      newPgxConfig(prefix + "PGX_"),
 		HTTP:     newHTTPConfig(prefix + "HTTP_"),

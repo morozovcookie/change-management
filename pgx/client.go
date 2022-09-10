@@ -94,7 +94,7 @@ func (c *Client) Close() {
 // available in rows.Err() after rows are closed. So it is allowed to
 // ignore the error returned from Query and handle it in Rows.
 func (c *Client) Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error) {
-	return c.pool.Query(ctx, sql, args...)
+	return c.pool.Query(ctx, sql, args...) //nolint:wrapcheck
 }
 
 // QueryRow is a convenience wrapper over Query. Any error that occurs
@@ -108,12 +108,12 @@ func (c *Client) QueryRow(ctx context.Context, sql string, args ...interface{}) 
 // string. arguments should be referenced positionally from the sql string
 // as $1, $2, etc.
 func (c *Client) Exec(ctx context.Context, sql string, arguments ...interface{}) (pgconn.CommandTag, error) {
-	return c.pool.Exec(ctx, sql, arguments...)
+	return c.pool.Exec(ctx, sql, arguments...) //nolint:wrapcheck
 }
 
 // BeginTx starts a transaction with txOptions determining the transaction
 // mode. Unlike database/sql, the context only affects the begin command.
 // i.e. there is no auto-rollback on context cancellation.
 func (c *Client) BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error) {
-	return c.pool.BeginTx(ctx, txOptions)
+	return c.pool.BeginTx(ctx, txOptions) //nolint:wrapcheck
 }

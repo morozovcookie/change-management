@@ -21,6 +21,7 @@ func encodeResponse(_ context.Context, writer http.ResponseWriter, status int, r
 	}
 }
 
+//nolint:gochecknoglobals
 var mapErrorCodeToHTTPStatusCode = map[cm.ErrorCode]int{
 	cm.ErrorCodeOK: http.StatusOK,
 
