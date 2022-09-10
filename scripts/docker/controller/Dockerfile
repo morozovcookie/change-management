@@ -15,7 +15,9 @@ COPY ./vendor ./vendor
 COPY ./*.go ./
 COPY ./nanoid ./nanoid
 COPY ./http ./http
+COPY ./zap ./zap
 COPY ./pgx ./pgx
+COPY ./task ./task
 COPY ./cmd ./cmd
 
 RUN go build \
