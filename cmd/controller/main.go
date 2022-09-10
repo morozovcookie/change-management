@@ -38,11 +38,12 @@ func main() {
 	eg, ctx := errgroup.WithContext(ctx)
 
 	be := newBackend(cfg, logger)
+
+	logger.Info("starting application")
+
 	if err := be.init(ctx); err != nil {
 		logger.Fatal("init", zap.Error(err))
 	}
-
-	logger.Info("starting application")
 
 	eg.Go(func() error {
 		logger.Info("starting http server", zap.String("host", be.apiServer.Addr))
@@ -53,6 +54,9 @@ func main() {
 
 		return nil
 	})
+
+	logger.Info("starting change request scheduler")
+	crqDone := be.changeRequestScheduler.Schedule(ctx)
 
 	logger.Info("application started")
 
@@ -68,6 +72,8 @@ func main() {
 	}
 
 	be.pgxClient.Close()
+
+	<-crqDone
 
 	if err := eg.Wait(); err != nil {
 		logger.Error("waiting for application be stopped", zap.Error(err))

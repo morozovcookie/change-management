@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -11,12 +12,14 @@ import (
 	v1 "github.com/morozovcookie/change-management/http/v1"
 	"github.com/morozovcookie/change-management/nanoid"
 	"github.com/morozovcookie/change-management/pgx"
-	"go.uber.org/zap"
+	"github.com/morozovcookie/change-management/task"
+	"github.com/morozovcookie/change-management/zap"
+	uberzap "go.uber.org/zap"
 )
 
 type backend struct {
 	cfg    *Config
-	logger *zap.Logger
+	logger *uberzap.Logger
 
 	pgxClient *pgx.Client
 
@@ -25,11 +28,13 @@ type backend struct {
 	changeRequestService cm.ChangeRequestService
 	incidentService      cm.IncidentService
 
+	changeRequestScheduler *task.Scheduler
+
 	apiRouter chi.Router
 	apiServer *http.Server
 }
 
-func newBackend(cfg *Config, logger *zap.Logger) *backend {
+func newBackend(cfg *Config, logger *uberzap.Logger) *backend {
 	apiRouter := chi.NewRouter()
 
 	return &backend{
@@ -59,6 +64,7 @@ func (be *backend) init(ctx context.Context) error {
 	}
 
 	be.initServices(ctx)
+	be.initSchedulers(ctx)
 	be.setupAPIRoutes(ctx)
 
 	return nil
@@ -89,6 +95,20 @@ func (be *backend) initServices(ctx context.Context) {
 	for range ii {
 		<-quit
 	}
+}
+
+func (be *backend) initSchedulers(ctx context.Context) {
+	be.initChangeRequestScheduler(ctx)
+}
+
+func (be *backend) initChangeRequestScheduler(_ context.Context) {
+	var processor task.QueueProcessor
+	{
+		processor = pgx.NewChangeRequestQueueProcessor(be.pgxClient)
+		processor = zap.NewQueueProcessor(processor, be.logger.Named("ChangeRequestQueueProcessor"))
+	}
+
+	be.changeRequestScheduler = task.NewScheduler(processor, time.Minute)
 }
 
 func (be *backend) initChangeRequestService(_ context.Context) {
