@@ -45,17 +45,10 @@ func main() {
 		logger.Fatal("init", zap.Error(err))
 	}
 
-	eg.Go(func() error {
-		logger.Info("starting http server", zap.String("host", be.apiServer.Addr))
-
-		if err := be.apiServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			return fmt.Errorf("listen and serve http server: %w", err)
-		}
-
-		return nil
-	})
+	eg.Go(startAPIServer(be.apiServer, logger))
 
 	logger.Info("starting change request scheduler")
+
 	crqDone := be.changeRequestScheduler.Schedule(ctx)
 
 	logger.Info("application started")
@@ -92,4 +85,16 @@ func createLogger(logLevel zapcore.Level) (*zap.Logger, error) {
 	}
 
 	return logger.Named("controller"), nil
+}
+
+func startAPIServer(srv *http.Server, logger *zap.Logger) func() error {
+	return func() error {
+		logger.Info("starting http server", zap.String("host", srv.Addr))
+
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return fmt.Errorf("listen and serve http server: %w", err)
+		}
+
+		return nil
+	}
 }
