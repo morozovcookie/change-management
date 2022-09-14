@@ -202,11 +202,53 @@ func parseInt(name string, out any) error {
 	return nil
 }
 
+type SchedulerConfig struct {
+	Timeout   time.Duration
+	BatchSize int
+
+	prefix string
+}
+
+func newSchedulerConfig(prefix string) *SchedulerConfig {
+	return &SchedulerConfig{
+		Timeout:   time.Minute,
+		BatchSize: 1,
+
+		prefix: prefix,
+	}
+}
+
+func (cfg *SchedulerConfig) parse() error {
+	for _, pp := range []struct {
+		name    string
+		out     any
+		parseFn func(string, any) error
+	}{
+		{
+			name:    cfg.prefix + "TIMEOUT",
+			out:     &cfg.Timeout,
+			parseFn: parseDuration,
+		},
+		{
+			name:    cfg.prefix + "BATCH_SIZE",
+			out:     &cfg.BatchSize,
+			parseFn: parseInt,
+		},
+	} {
+		if err := pp.parseFn(pp.name, pp.out); err != nil {
+			return fmt.Errorf("parse HTTP config: %w", err)
+		}
+	}
+
+	return nil
+}
+
 type Config struct {
 	Pgx      *PgxConfig
 	HTTP     *HTTPConfig
 	Monitor  *HTTPConfig
 	Profile  *HTTPConfig
+	CRQ      *SchedulerConfig
 	logLevel zapcore.Level
 
 	prefix string
@@ -220,6 +262,7 @@ func NewConfig() *Config {
 		HTTP:     newHTTPConfig(prefix + "HTTP_"),
 		Monitor:  newHTTPConfig(prefix + "MONITOR_"),
 		Profile:  newHTTPConfig(prefix + "PROFILE_"),
+		CRQ:      newSchedulerConfig(prefix + "CRQ_SCHEDULER_"),
 		logLevel: zapcore.ErrorLevel,
 
 		prefix: prefix,
