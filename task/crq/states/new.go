@@ -3,8 +3,8 @@ package states
 import (
 	"context"
 	"fmt"
-	cm "github.com/morozovcookie/change-management"
 
+	cm "github.com/morozovcookie/change-management"
 	"github.com/morozovcookie/change-management/task/crq"
 )
 
@@ -34,6 +34,8 @@ func (state *NewRequestState) createIssue(ctx context.Context, crq *crq.Context)
 	if err := crq.IssueService.CreateIssue(ctx, issue); err != nil {
 		return err
 	}
+
+	crq.Instance().Issue = issue
 
 	return nil
 }

@@ -2,6 +2,7 @@ package states
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/morozovcookie/change-management/task/crq"
 )
@@ -13,9 +14,23 @@ type RegisteredRequestState struct {
 }
 
 func (state *RegisteredRequestState) Handle(ctx context.Context, crq *crq.Context) error {
-	// TODO: close issue in issue tracker
+	if err := state.closeIssue(ctx, crq); err != nil {
+		return fmt.Errorf("handle Registered request state: %w", err)
+	}
+
+	if err := state.updateChangeRequest(ctx, crq); err != nil {
+		return fmt.Errorf("handle Registered request state: %w", err)
+	}
 
 	crq.ChangeState(ctx, state.container.ClosedRequestState(ctx))
 
 	return nil
+}
+
+func (state *RegisteredRequestState) closeIssue(ctx context.Context, crq *crq.Context) error {
+	return crq.IssueService.CloseIssue(ctx, crq.Instance().Issue.Key)
+}
+
+func (state *RegisteredRequestState) updateChangeRequest(ctx context.Context, crq *crq.Context) error {
+	return crq.ChangeRequestService.UpdateChangeRequest(ctx, crq.Instance())
 }

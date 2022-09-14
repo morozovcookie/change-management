@@ -37,6 +37,9 @@ type ChangeRequest struct {
 	// should be closed automatically.
 	IsAutoClose bool
 
+	// Issue is the linked ticker in issue tracker system.
+	Issue *Issue
+
 	// ID is the change request unique identifier.
 	ID ID
 
