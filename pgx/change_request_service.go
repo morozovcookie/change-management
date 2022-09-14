@@ -9,6 +9,8 @@ import (
 	cm "github.com/morozovcookie/change-management"
 )
 
+var _ cm.ChangeRequestService = (*ChangeRequestService)(nil)
+
 // ChangeRequestService represents a service for manging ChangeRequest data.
 type ChangeRequestService struct {
 	db QueryExecer
@@ -80,4 +82,9 @@ func (svc *ChangeRequestService) FindChangeRequestByID(ctx context.Context, id c
 	}
 
 	return crq, nil
+}
+
+// UpdateChangeRequest updates an existent change request.
+func (svc *ChangeRequestService) UpdateChangeRequest(_ context.Context, _ *cm.ChangeRequest) error {
+	return nil
 }

@@ -33,6 +33,10 @@ func (t ChangeRequestType) IsValid() bool {
 // ChangeRequest is the request for making the change of current infrastructure
 // state.
 type ChangeRequest struct {
+	// IsAutoClose is the flag that indicates that change request
+	// should be closed automatically.
+	IsAutoClose bool
+
 	// ID is the change request unique identifier.
 	ID ID
 
@@ -44,10 +48,6 @@ type ChangeRequest struct {
 
 	// Description is the full free form text describes the change.
 	Description string
-
-	// IsAutoClose is the flag that indicates that change request
-	// should be closed automatically.
-	IsAutoClose bool
 
 	// CreatedAt is the UTC time when change request was created.
 	CreatedAt time.Time
@@ -63,4 +63,7 @@ type ChangeRequestService interface {
 
 	// FindChangeRequestByID returns change request by unique identifier.
 	FindChangeRequestByID(ctx context.Context, id ID) (*ChangeRequest, error)
+
+	// UpdateChangeRequest updates an existent change request.
+	UpdateChangeRequest(ctx context.Context, crq *ChangeRequest) error
 }
