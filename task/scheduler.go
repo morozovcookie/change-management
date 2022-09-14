@@ -8,38 +8,38 @@ import (
 type Scheduler struct {
 	processor QueueProcessor
 	timeout   time.Duration
+
+	done chan struct{}
 }
 
 func NewScheduler(processor QueueProcessor, timeout time.Duration) *Scheduler {
 	return &Scheduler{
 		processor: processor,
 		timeout:   timeout,
+
+		done: make(chan struct{}, 1),
 	}
 }
 
-func (s *Scheduler) Schedule(ctx context.Context) <-chan struct{} {
-	var (
-		ticker = time.NewTicker(s.timeout)
-		quit   = make(chan struct{}, 1)
-	)
+func (scheduler *Scheduler) Schedule(ctx context.Context) {
+	ticker := time.NewTicker(scheduler.timeout)
+	defer ticker.Stop()
 
-	go func(ctx context.Context, ticker *time.Ticker, processor QueueProcessor, quit chan<- struct{}) {
-		defer close(quit)
-		defer ticker.Stop()
+	_ = scheduler.processor.ProcessQueue(ctx)
 
-		_ = processor.ProcessQueue(ctx)
+	for {
+		select {
+		case <-ctx.Done():
+			scheduler.done <- struct{}{}
+			close(scheduler.done)
 
-		for {
-			select {
-			case <-ctx.Done():
-				quit <- struct{}{}
-
-				return
-			case <-ticker.C:
-				_ = processor.ProcessQueue(ctx)
-			}
+			return
+		case <-ticker.C:
+			_ = scheduler.processor.ProcessQueue(ctx)
 		}
-	}(ctx, ticker, s.processor, quit)
+	}
+}
 
-	return quit
+func (scheduler *Scheduler) Done() <-chan struct{} {
+	return scheduler.done
 }

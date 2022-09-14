@@ -49,7 +49,7 @@ func main() {
 
 	logger.Info("starting change request scheduler")
 
-	crqDone := be.changeRequestScheduler.Schedule(ctx)
+	go be.changeRequestScheduler.Schedule(ctx)
 
 	logger.Info("application started")
 
@@ -64,9 +64,11 @@ func main() {
 		logger.Error("stopping http server", zap.Error(err))
 	}
 
-	be.pgxClient.Close()
+	logger.Info("waiting for CRQ scheduler will be stopped")
 
-	<-crqDone
+	<-be.changeRequestScheduler.Done()
+
+	be.pgxClient.Close()
 
 	if err := eg.Wait(); err != nil {
 		logger.Error("waiting for application be stopped", zap.Error(err))
