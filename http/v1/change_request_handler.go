@@ -41,10 +41,11 @@ func NewChangeRequestHandler(changeRequestSvc cm.ChangeRequestService) *ChangeRe
 }
 
 type CreateChangeRequestRequest struct {
+	IsAutoClose bool   `json:"isAutoClose"`
 	RawType     string `json:"type"`
 	Summary     string `json:"summary"`
 	Description string `json:"description"`
-	IsAutoClose bool   `json:"isAutoClose"`
+	ExternalID  string `json:"externalId"`
 
 	requestType cm.ChangeRequestType
 }
@@ -91,11 +92,25 @@ func (h *ChangeRequestHandler) handleCreateChangeRequest(writer http.ResponseWri
 		return
 	}
 
-	crq := &cm.ChangeRequest{
+	crq, err := h.changeRequestSvc.FindChangeRequestByExternalID(ctx, decoded.ExternalID)
+	if err != nil && cm.ErrorCodeFromError(err) != cm.ErrorCodeNotFound {
+		encodeErrorResponse(ctx, writer, err)
+
+		return
+	}
+
+	if crq != nil {
+		encodeResponse(ctx, writer, http.StatusOK, newCreateChangeRequestResponse(crq))
+
+		return
+	}
+
+	crq = &cm.ChangeRequest{
 		Type:        decoded.requestType,
 		Summary:     decoded.Summary,
 		Description: decoded.Description,
 		IsAutoClose: decoded.IsAutoClose,
+		ExternalID:  decoded.ExternalID,
 	}
 
 	if err := h.changeRequestSvc.CreateChangeRequest(ctx, crq); err != nil {
