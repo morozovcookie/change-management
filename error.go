@@ -12,9 +12,11 @@ var _ fmt.Stringer = (*ErrorCode)(nil)
 type ErrorCode string
 
 const (
-	ErrorCodeOK       = "ok"
-	ErrorCodeInvalid  = "invalid"
-	ErrorCodeInternal = "internal"
+	ErrorCodeOK       = ErrorCode("ok")
+	ErrorCodeInvalid  = ErrorCode("invalid")
+	ErrorCodeConflict = ErrorCode("conflict")
+	ErrorCodeNotFound = ErrorCode("not_found")
+	ErrorCodeInternal = ErrorCode("internal")
 )
 
 // The String method is used to print values passed as an operand
