@@ -48,6 +48,11 @@ type TxBeginner interface {
 	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
 }
 
+type Conn interface {
+	TxBeginner
+	QueryExecer
+}
+
 var (
 	_ QueryExecer = (*Client)(nil)
 	_ TxBeginner  = (*Client)(nil)

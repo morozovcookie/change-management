@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -104,11 +103,11 @@ func (be *backend) initSchedulers(ctx context.Context) {
 func (be *backend) initChangeRequestScheduler(_ context.Context) {
 	var processor task.QueueProcessor
 	{
-		processor = pgx.NewChangeRequestQueueProcessor(be.pgxClient)
+		processor = pgx.NewChangeRequestQueueProcessor(be.pgxClient, be.cfg.CRQ.BatchSize)
 		processor = zap.NewQueueProcessor(processor, be.logger.Named("ChangeRequestQueueProcessor"))
 	}
 
-	be.changeRequestScheduler = task.NewScheduler(processor, time.Minute)
+	be.changeRequestScheduler = task.NewScheduler(processor, be.cfg.CRQ.Timeout)
 }
 
 func (be *backend) initChangeRequestService(_ context.Context) {
