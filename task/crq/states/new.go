@@ -41,5 +41,5 @@ func (state *NewRequestState) createIssue(ctx context.Context, crq *crq.Context)
 }
 
 func (state *NewRequestState) updateChangeRequest(ctx context.Context, crq *crq.Context) error {
-	return crq.ChangeRequestService.UpdateChangeRequest(ctx, crq.Instance())
+	return crq.ChangeRequestUpdater.UpdateChangeRequest(ctx, crq.Instance())
 }

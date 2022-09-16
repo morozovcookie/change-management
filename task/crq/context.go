@@ -7,7 +7,7 @@ import (
 )
 
 type Context struct {
-	cm.ChangeRequestService
+	cm.ChangeRequestUpdater
 	cm.IssueService
 
 	instance *cm.ChangeRequest

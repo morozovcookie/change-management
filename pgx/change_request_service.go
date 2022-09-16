@@ -2,9 +2,7 @@ package pgx
 
 import (
 	"context"
-	"crypto/sha256"
 	"database/sql"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -33,20 +31,32 @@ func NewChangeRequestService(conn Conn, idGenerator cm.IdentifierGenerator) *Cha
 	}
 }
 
+const (
+	createChangeRequestRecordQuery = `INSERT INTO controller.change_requests 
+(crq_id, crq_type, crq_summary, crq_description, crq_is_auto_close, crq_external_id, created_at) 
+VALUES ($1, $2, $3, $4, $5, $6, $7)`
+
+	putItemIntoChangeRequestQueueQuery = `INSERT INTO controller.change_request_queue 
+(content, created_at) 
+VALUES ($1, $2)`
+)
+
 // CreateChangeRequest creates a new change request.
 func (svc *ChangeRequestService) CreateChangeRequest(ctx context.Context, crq *cm.ChangeRequest) error {
 	ctx, cancel := context.WithDeadline(ctx, time.Now().Add(time.Millisecond*100))
 	defer cancel()
 
-	query := "SELECT crq_id, created_at FROM controller.change_requests WHERE hash = $1 ORDER BY row_id DESC LIMIT 1"
-
-	err := svc.conn.QueryRow(ctx, query, calculateChangeRequestHash(crq)).Scan(&crq.ID, &crq.CreatedAt)
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-		return fmt.Errorf("create change request: %w", err)
+	err := svc.checkChangeRequestExistence(ctx, crq.ExternalID)
+	if err != nil && cm.ErrorCodeFromError(err) != cm.ErrorCodeNotFound {
+		return err
 	}
 
 	if err == nil {
-		return nil
+		return fmt.Errorf("create change reqeust: %w", &cm.Error{
+			Code:    cm.ErrorCodeConflict,
+			Message: fmt.Sprintf(`change request with external identifier "%s" already exist`, crq.ExternalID),
+			Err:     nil,
+		})
 	}
 
 	tx, err := svc.conn.BeginTx(ctx, pgx.TxOptions{})
@@ -66,22 +76,18 @@ func (svc *ChangeRequestService) CreateChangeRequest(ctx context.Context, crq *c
 
 	id, createdAt := svc.idGenerator.GenerateIdentifier(ctx), svc.timer.Time(ctx)
 
-	query = "INSERT INTO controller.change_requests (crq_id, crq_type, crq_summary, crq_description, " +
-		"crq_is_auto_close, created_at) VALUES ($1, $2, $3, $4, $5, $6)"
-
-	_, err = tx.Exec(ctx, query, id, crq.Type.String(), crq.Summary, crq.Description, crq.IsAutoClose,
-		createdAt.UnixMilli())
+	_, err = tx.Exec(ctx, createChangeRequestRecordQuery, id, crq.Type.String(), crq.Summary, crq.Description,
+		crq.IsAutoClose, crq.ExternalID, createdAt.UnixMilli())
 	if err != nil {
 		return fmt.Errorf("create change request: %w", err)
 	}
 
-	query = "INSERT INTO controller.change_request_queue (content, created_at) VALUES ($1, $2)"
-
-	if _, err := tx.Exec(ctx, query, json.RawMessage(nil), svc.timer.Time(ctx).UnixMilli()); err != nil {
+	_, err = tx.Exec(ctx, putItemIntoChangeRequestQueueQuery, json.RawMessage(nil), svc.timer.Time(ctx).UnixMilli())
+	if err != nil {
 		return fmt.Errorf("create change request: %w", err)
 	}
 
-	if err := tx.Commit(ctx); err != nil {
+	if err = tx.Commit(ctx); err != nil {
 		return fmt.Errorf("create change request: %w", err)
 	}
 
@@ -90,21 +96,39 @@ func (svc *ChangeRequestService) CreateChangeRequest(ctx context.Context, crq *c
 	return nil
 }
 
-func calculateChangeRequestHash(crq *cm.ChangeRequest) string {
-	hash := sha256.New()
+const checkChangeRequestExistenceQuery = `SELECT exists(
+    SELECT 1 
+    FROM controller.change_requests 
+    WHERE crq_external_id = $1
+)`
 
-	_, _ = fmt.Fprintf(hash, "%t%s%s%s", crq.IsAutoClose, crq.Type, crq.Summary, crq.Description)
+func (svc *ChangeRequestService) checkChangeRequestExistence(ctx context.Context, id string) error {
+	var isExist bool
 
-	return hex.EncodeToString(hash.Sum(nil))
+	if err := svc.conn.QueryRow(ctx, checkChangeRequestExistenceQuery, id).Scan(&isExist); err != nil {
+		return err
+	}
+
+	if !isExist {
+		return &cm.Error{
+			Code:    cm.ErrorCodeNotFound,
+			Message: fmt.Sprintf(`change request with external identifier "%s" does not exist`, id),
+			Err:     nil,
+		}
+	}
+
+	return nil
 }
+
+const findChangeRequestByIdQuery = `SELECT crq_id, crq_type, crq_summary, crq_description, crq_is_auto_close, 
+       crq_external_id, created_at, updated_at 
+FROM controller.change_requests 
+WHERE crq_id = $1`
 
 // FindChangeRequestByID returns change request by unique identifier.
 func (svc *ChangeRequestService) FindChangeRequestByID(ctx context.Context, id cm.ID) (*cm.ChangeRequest, error) {
 	ctx, cancel := context.WithDeadline(ctx, time.Now().Add(time.Millisecond*100))
 	defer cancel()
-
-	const query = "SELECT crq_id, crq_type, crq_summary, crq_description, crq_is_auto_close, created_at, updated_at " +
-		"FROM controller.change_requests WHERE crq_id = $1"
 
 	var (
 		crq = new(cm.ChangeRequest)
@@ -114,8 +138,8 @@ func (svc *ChangeRequestService) FindChangeRequestByID(ctx context.Context, id c
 		updatedAt   sql.NullInt64
 	)
 
-	err := svc.db.QueryRow(ctx, query, id.String()).Scan(&crq.ID, &requestType, &crq.Summary, &crq.Description,
-		&crq.IsAutoClose, &createdAt, &updatedAt)
+	err := svc.conn.QueryRow(ctx, findChangeRequestByIdQuery, id.String()).Scan(&crq.ID, &requestType, &crq.Summary,
+		&crq.Description, &crq.IsAutoClose, &crq.ExternalID, &createdAt, &updatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("find change request by id: %w", err)
 	}
@@ -126,14 +150,58 @@ func (svc *ChangeRequestService) FindChangeRequestByID(ctx context.Context, id c
 
 	crq.CreatedAt = time.UnixMilli(createdAt)
 
-	if updatedAt.Valid {
-		crq.UpdatedAt = time.UnixMilli(updatedAt.Int64)
+	if val, ok := updatedAt.Int64, updatedAt.Valid; ok {
+		crq.UpdatedAt = time.UnixMilli(val)
 	}
 
 	return crq, nil
 }
 
-// UpdateChangeRequest updates an existent change request.
-func (svc *ChangeRequestService) UpdateChangeRequest(_ context.Context, _ *cm.ChangeRequest) error {
-	return nil
+const findChangeRequestByExternalIdQuery = `SELECT crq_id, crq_type, crq_summary, crq_description, crq_is_auto_close, 
+       created_at, updated_at 
+FROM controller.change_requests 
+WHERE crq_external_id = $1 
+ORDER BY row_id DESC 
+LIMIT 1`
+
+// FindChangeRequestByExternalID returns change request by external
+// identifier.
+func (svc *ChangeRequestService) FindChangeRequestByExternalID(
+	ctx context.Context,
+	id string,
+) (
+	*cm.ChangeRequest,
+	error,
+) {
+	ctx, cancel := context.WithDeadline(ctx, time.Now().Add(time.Millisecond*100))
+	defer cancel()
+
+	var (
+		crq = new(cm.ChangeRequest)
+
+		createdAt int64
+		updatedAt sql.NullInt64
+	)
+
+	err := svc.conn.QueryRow(ctx, findChangeRequestByExternalIdQuery, id).Scan(&crq.ID, &crq.Type, &crq.Summary,
+		&crq.Description, &crq.IsAutoClose, &createdAt, &updatedAt)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("find change request by external identifier: %w", &cm.Error{
+			Code:    cm.ErrorCodeNotFound,
+			Message: fmt.Sprintf(`change request with externa identifier "%s" does not exist`, id),
+			Err:     err,
+		})
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("find change request by external identifier: %w", err)
+	}
+
+	crq.ExternalID, crq.CreatedAt = id, time.UnixMilli(createdAt)
+
+	if val, ok := updatedAt.Int64, updatedAt.Valid; ok {
+		crq.UpdatedAt = time.UnixMilli(val)
+	}
+
+	return crq, nil
 }

@@ -32,5 +32,5 @@ func (state *RegisteredRequestState) closeIssue(ctx context.Context, crq *crq.Co
 }
 
 func (state *RegisteredRequestState) updateChangeRequest(ctx context.Context, crq *crq.Context) error {
-	return crq.ChangeRequestService.UpdateChangeRequest(ctx, crq.Instance())
+	return crq.ChangeRequestUpdater.UpdateChangeRequest(ctx, crq.Instance())
 }

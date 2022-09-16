@@ -43,6 +43,9 @@ type ChangeRequest struct {
 	// ID is the change request unique identifier.
 	ID ID
 
+	// ExternalID is the identifier in the API consumer system.
+	ExternalID string
+
 	// Type is the change request type.
 	Type ChangeRequestType
 
@@ -67,6 +70,13 @@ type ChangeRequestService interface {
 	// FindChangeRequestByID returns change request by unique identifier.
 	FindChangeRequestByID(ctx context.Context, id ID) (*ChangeRequest, error)
 
+	// FindChangeRequestByExternalID returns change request by external
+	// identifier.
+	FindChangeRequestByExternalID(ctx context.Context, id string) (*ChangeRequest, error)
+}
+
+// ChangeRequestUpdater represents a service for updating change request.
+type ChangeRequestUpdater interface {
 	// UpdateChangeRequest updates an existent change request.
 	UpdateChangeRequest(ctx context.Context, crq *ChangeRequest) error
 }
