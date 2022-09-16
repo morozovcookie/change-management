@@ -19,8 +19,7 @@ BEGIN;
         crq_summary varchar(255) NOT NULL,
         crq_description text NOT NULL,
         crq_is_auto_close boolean NOT NULL,
-
-        hash varchar(32) NOT NULL,
+        crq_external_id varchar(255) NOT NULL,
 
         created_at bigint NOT NULL,
         updated_at bigint,
@@ -42,8 +41,8 @@ infrastructure state';
     COMMENT ON COLUMN change_requests.crq_is_auto_close
         IS 'flag that indicates that change request should be closed
 automatically';
-    COMMENT ON COLUMN change_requests.hash
-        IS 'calculated crq hash for identify it on creation stage';
+    COMMENT ON COLUMN change_requests.crq_external_id
+        IS 'unique identifier in API consumer system';
     COMMENT ON COLUMN change_requests.created_at
         IS 'time when change request was created';
     COMMENT ON COLUMN change_requests.updated_at
