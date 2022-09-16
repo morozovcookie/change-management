@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v4"
 	"time"
 
+	"github.com/jackc/pgx/v4"
 	cm "github.com/morozovcookie/change-management"
 )
 
@@ -106,7 +106,7 @@ func (svc *ChangeRequestService) checkChangeRequestExistence(ctx context.Context
 	var isExist bool
 
 	if err := svc.conn.QueryRow(ctx, checkChangeRequestExistenceQuery, id).Scan(&isExist); err != nil {
-		return err
+		return err //nolint:wrapcheck
 	}
 
 	if !isExist {
@@ -120,7 +120,7 @@ func (svc *ChangeRequestService) checkChangeRequestExistence(ctx context.Context
 	return nil
 }
 
-const findChangeRequestByIdQuery = `SELECT crq_id, crq_type, crq_summary, crq_description, crq_is_auto_close, 
+const findChangeRequestByIDQuery = `SELECT crq_id, crq_type, crq_summary, crq_description, crq_is_auto_close, 
        crq_external_id, created_at, updated_at 
 FROM controller.change_requests 
 WHERE crq_id = $1`
@@ -138,7 +138,7 @@ func (svc *ChangeRequestService) FindChangeRequestByID(ctx context.Context, id c
 		updatedAt   sql.NullInt64
 	)
 
-	err := svc.conn.QueryRow(ctx, findChangeRequestByIdQuery, id.String()).Scan(&crq.ID, &requestType, &crq.Summary,
+	err := svc.conn.QueryRow(ctx, findChangeRequestByIDQuery, id.String()).Scan(&crq.ID, &requestType, &crq.Summary,
 		&crq.Description, &crq.IsAutoClose, &crq.ExternalID, &createdAt, &updatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("find change request by id: %w", err)
@@ -157,7 +157,7 @@ func (svc *ChangeRequestService) FindChangeRequestByID(ctx context.Context, id c
 	return crq, nil
 }
 
-const findChangeRequestByExternalIdQuery = `SELECT crq_id, crq_type, crq_summary, crq_description, crq_is_auto_close, 
+const findChangeRequestByExternalIDQuery = `SELECT crq_id, crq_type, crq_summary, crq_description, crq_is_auto_close, 
        created_at, updated_at 
 FROM controller.change_requests 
 WHERE crq_external_id = $1 
@@ -183,7 +183,7 @@ func (svc *ChangeRequestService) FindChangeRequestByExternalID(
 		updatedAt sql.NullInt64
 	)
 
-	err := svc.conn.QueryRow(ctx, findChangeRequestByExternalIdQuery, id).Scan(&crq.ID, &crq.Type, &crq.Summary,
+	err := svc.conn.QueryRow(ctx, findChangeRequestByExternalIDQuery, id).Scan(&crq.ID, &crq.Type, &crq.Summary,
 		&crq.Description, &crq.IsAutoClose, &createdAt, &updatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, fmt.Errorf("find change request by external identifier: %w", &cm.Error{

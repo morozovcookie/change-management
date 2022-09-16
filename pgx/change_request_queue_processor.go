@@ -80,7 +80,7 @@ func (svc *ChangeRequestQueueProcessor) ProcessQueue(ctx context.Context) error 
 			return fmt.Errorf("process queue: %w", err)
 		}
 
-		ii = append(ii)
+		ii = append(ii, item)
 	}
 
 	if err = rows.Err(); err != nil {
@@ -163,7 +163,7 @@ func deleteProcessedItems(ctx context.Context, tx pgx.Tx, ii []int64) error {
 	}
 
 	if _, err := tx.Exec(ctx, buf.String(), args...); err != nil {
-		return err
+		return err //nolint:wrapcheck
 	}
 
 	return nil

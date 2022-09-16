@@ -32,7 +32,7 @@ func (state *NewRequestState) createIssue(ctx context.Context, crq *crq.Context)
 	issue := &cm.Issue{}
 
 	if err := crq.IssueService.CreateIssue(ctx, issue); err != nil {
-		return err
+		return err //nolint:wrapcheck
 	}
 
 	crq.Instance().Issue = issue
@@ -41,5 +41,5 @@ func (state *NewRequestState) createIssue(ctx context.Context, crq *crq.Context)
 }
 
 func (state *NewRequestState) updateChangeRequest(ctx context.Context, crq *crq.Context) error {
-	return crq.ChangeRequestUpdater.UpdateChangeRequest(ctx, crq.Instance())
+	return crq.ChangeRequestUpdater.UpdateChangeRequest(ctx, crq.Instance()) //nolint:wrapcheck
 }

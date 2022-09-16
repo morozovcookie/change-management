@@ -28,9 +28,9 @@ func (state *RegisteredRequestState) Handle(ctx context.Context, crq *crq.Contex
 }
 
 func (state *RegisteredRequestState) closeIssue(ctx context.Context, crq *crq.Context) error {
-	return crq.IssueService.CloseIssue(ctx, crq.Instance().Issue.Key)
+	return crq.IssueService.CloseIssue(ctx, crq.Instance().Issue.Key) //nolint:wrapcheck
 }
 
 func (state *RegisteredRequestState) updateChangeRequest(ctx context.Context, crq *crq.Context) error {
-	return crq.ChangeRequestUpdater.UpdateChangeRequest(ctx, crq.Instance())
+	return crq.ChangeRequestUpdater.UpdateChangeRequest(ctx, crq.Instance()) //nolint:wrapcheck
 }

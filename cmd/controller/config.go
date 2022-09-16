@@ -275,6 +275,7 @@ func (cfg *Config) Parse() error {
 		cfg.HTTP.parse,
 		cfg.Monitor.parse,
 		cfg.Profile.parse,
+		cfg.CRQ.parse,
 		cfg.parse,
 	} {
 		if err := fn(); err != nil {

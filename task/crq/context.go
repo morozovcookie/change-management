@@ -15,7 +15,7 @@ type Context struct {
 }
 
 func (crq *Context) Handle(ctx context.Context) error {
-	return crq.state.Handle(ctx, crq)
+	return crq.state.Handle(ctx, crq) //nolint:wrapcheck
 }
 
 func (crq *Context) Instance() *cm.ChangeRequest {
