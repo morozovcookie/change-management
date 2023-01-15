@@ -31,16 +31,15 @@ func NewChangeRequestQueueProcessor(txBeginner TxBeginner, batchSize int) *Chang
 }
 
 type changeRequestQueueItem struct {
+	failCount int16
+	context   *crq.Context
 	id        int64
 	content   json.RawMessage
-	failCount int16
-
-	context *crq.Context
 }
 
 type processQueueItemResult struct {
+	failCount int16
 	id        int64
-	failCount int64
 	err       error
 }
 
@@ -61,30 +60,60 @@ func (svc *ChangeRequestQueueProcessor) ProcessQueue(ctx context.Context) error 
 		}
 	}(ctx, tx, &err)
 
-	query := "SELECT row_id, content, fail_count FROM controller.change_request_queue ORDER BY row_id FOR UPDATE" +
-		" SKIP LOCKED LIMIT $1"
-
-	rows, err := tx.Query(ctx, query, svc.batchSize)
-	if err != nil {
+	if err = svc.processQueue(ctx, tx); err != nil {
 		return fmt.Errorf("process queue: %w", err)
+	}
+
+	if err = tx.Commit(ctx); err != nil {
+		return fmt.Errorf("process queue: %w", err)
+	}
+
+	return nil
+}
+
+const (
+	takeQueueItemsQuery = `SELECT row_id, content, fail_count 
+FROM controller.change_request_queue 
+ORDER BY row_id 
+FOR UPDATE SKIP LOCKED 
+LIMIT $1`
+
+	updateQueueItemQuery = `UPDATE controller.change_request_queue 
+SET fail_count = $1, last_error = $2, updated_at = $3 
+WHERE row_id = $4`
+)
+
+func takeQueueItems(ctx context.Context, queryer Queryer, batchSize int) ([]*changeRequestQueueItem, error) {
+	rows, err := queryer.Query(ctx, takeQueueItemsQuery, batchSize)
+	if err != nil {
+		return nil, err //nolint:wrapcheck
 	}
 
 	defer rows.Close()
 
-	ii := make([]*changeRequestQueueItem, 0, svc.batchSize)
+	ii := make([]*changeRequestQueueItem, 0, batchSize)
 
 	for rows.Next() {
 		item := new(changeRequestQueueItem)
 
-		if err := rows.Scan(&item.id, &item.content, &item.failCount); err != nil {
-			return fmt.Errorf("process queue: %w", err)
+		if err = rows.Scan(&item.id, &item.content, &item.failCount); err != nil {
+			return nil, err //nolint:wrapcheck
 		}
 
 		ii = append(ii, item)
 	}
 
 	if err = rows.Err(); err != nil {
-		return fmt.Errorf("process queue: %w", err)
+		return nil, err //nolint:wrapcheck
+	}
+
+	return ii, nil
+}
+
+func (svc *ChangeRequestQueueProcessor) processQueue(ctx context.Context, tx QueryExecer) error {
+	ii, err := takeQueueItems(ctx, tx, svc.batchSize)
+	if err != nil {
+		return err
 	}
 
 	for i, item := range ii {
@@ -97,7 +126,8 @@ func (svc *ChangeRequestQueueProcessor) ProcessQueue(ctx context.Context) error 
 	for _, item := range ii {
 		go func(ctx context.Context, item *changeRequestQueueItem, out chan<- *processQueueItemResult) {
 			result := &processQueueItemResult{
-				id: item.id,
+				failCount: item.failCount,
+				id:        item.id,
 			}
 
 			if result.err = item.context.Handle(ctx); result.err != nil {
@@ -110,9 +140,6 @@ func (svc *ChangeRequestQueueProcessor) ProcessQueue(ctx context.Context) error 
 
 	forDelete := make([]int64, 0, svc.batchSize)
 
-	query = "UPDATE controller.change_request_queue SET fail_count = $1, last_error = $2, updated_at = $3 WHERE " +
-		"row_id = $4"
-
 	for range ii {
 		result := <-resultCh
 
@@ -122,15 +149,12 @@ func (svc *ChangeRequestQueueProcessor) ProcessQueue(ctx context.Context) error 
 			continue
 		}
 
-		_, _ = tx.Exec(ctx, query, result.failCount, result.err.Error(), svc.timer.Time(ctx).UnixMilli(), result.id)
+		_, _ = tx.Exec(ctx, updateQueueItemQuery, result.failCount, result.err.Error(), svc.timer.Time(ctx).UnixMilli(),
+			result.id)
 	}
 
 	if err = deleteProcessedItems(ctx, tx, forDelete); err != nil {
-		return fmt.Errorf("process queue: %w", err)
-	}
-
-	if err = tx.Commit(ctx); err != nil {
-		return fmt.Errorf("process queue: %w", err)
+		return err
 	}
 
 	return nil
@@ -140,7 +164,7 @@ func queueItemContentToChangeRequestContext(_ json.RawMessage) *crq.Context {
 	return &crq.Context{}
 }
 
-func deleteProcessedItems(ctx context.Context, tx pgx.Tx, ii []int64) error {
+func deleteProcessedItems(ctx context.Context, tx Execer, ii []int64) error {
 	if len(ii) == 0 {
 		return nil
 	}

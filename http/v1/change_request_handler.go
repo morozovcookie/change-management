@@ -119,7 +119,7 @@ func (h *ChangeRequestHandler) handleCreateChangeRequest(writer http.ResponseWri
 		return
 	}
 
-	encodeResponse(ctx, writer, http.StatusOK, newCreateChangeRequestResponse(crq))
+	encodeResponse(ctx, writer, http.StatusCreated, newCreateChangeRequestResponse(crq))
 }
 
 type GetChangeRequestRequest struct {
