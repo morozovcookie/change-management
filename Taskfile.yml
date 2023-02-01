@@ -1,0 +1,16 @@
+version: '3'
+
+tasks:
+  go:fmt:
+    cmds:
+      - gofumpt ./...
+    desc: Formats Go programs
+    silent: true
+
+  go:lint:
+    cmds:
+      - golangci-lint run ./...
+    desc: Check code styling rules
+    preconditions:
+      - test -s {{.ROOT_DIR}}/.golangci.yaml
+    silent: true
