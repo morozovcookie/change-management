@@ -1,0 +1,4 @@
+crqId:
+  $ref: path/crq_id.yml
+incidentId:
+  $ref: path/incident_id.yml

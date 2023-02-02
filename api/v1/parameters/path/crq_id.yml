@@ -1,0 +1,12 @@
+name: crqId
+in: path
+description: Change request unique identifier
+required: true
+deprecated: false
+allowEmptyValue: false
+style: simple
+explode: false
+allowReserved: false
+schema:
+  $ref: ./../../schemas/_index.yml#/id
+example: 8x8cqdf0shscsy4rtrndwliqtaynrvct

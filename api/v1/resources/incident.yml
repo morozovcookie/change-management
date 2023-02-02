@@ -1,0 +1,13 @@
+get:
+  operationId: getIncidentById
+  summary: Retrieve a single incident by id
+  description: Method return a single incident by it unique identifier
+  tags:
+    - IM
+  parameters:
+    - $ref: ./../parameters/_index.yml#/incidentId
+  responses:
+    '200':
+      description: OK
+    '400':
+      description: Bad Request

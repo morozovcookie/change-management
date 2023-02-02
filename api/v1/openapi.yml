@@ -1,0 +1,29 @@
+openapi: 3.0.2
+
+info:
+  title: Change Management
+  version: '1.0'
+
+servers: []
+
+components:
+  schemas:
+    $ref: schemas/_index.yml
+  parameters:
+    $ref: parameters/_index.yml
+
+tags:
+  - name: CRQ
+    description: Change request management API
+  - name: IM
+    description: Incident management API
+      
+paths: 
+  /api/v1/crq:
+    $ref: resources/crqs.yml
+  /api/v1/crq/{crqId}:
+    $ref: resources/crq.yml
+  /api/v1/im:
+    $ref: resources/incidents.yml
+  /api/v1/im/{incidentId}:
+    $ref: resources/incident.yml

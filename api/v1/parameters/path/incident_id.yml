@@ -1,0 +1,12 @@
+name: incidentId
+in: path
+description: Incident unique identifier
+required: true
+deprecated: false
+allowEmptyValue: false
+style: simple
+explode: false
+allowReserved: false
+schema:
+  $ref: ./../../schemas/_index.yml#/id
+example: 7bu21gwa31fk8fwtfk36444m4mvukgg0

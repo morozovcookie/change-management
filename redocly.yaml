@@ -1,0 +1,49 @@
+---
+extends:
+  - recommended
+
+rules:
+  security-defined: off
+  no-unused-components: error
+  info-license: off
+  info-license-url: off
+  operation-2xx-response: error
+  operation-4xx-response: error
+  operation-description: error
+  operation-operationId: error
+  boolean-parameter-prefixes:
+    severity: error
+  no-invalid-parameter-examples:
+    severity: error
+  parameter-description: error
+  path-not-include-query: error
+  no-ambiguous-paths: error
+  no-http-verbs-in-paths: error
+  path-segment-plural:
+    severity: error
+    exceptions:
+      - crq
+      - im
+      - api
+      - v1
+      - v2
+  paths-kebab-case: error
+  no-invalid-media-type-examples:
+    severity: error
+  no-invalid-schema-examples:
+    severity: error
+  request-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
+  response-mime-type:
+    severity: error
+    allowedValues:
+      - application/json
+  scalar-property-missing-example: error
+  no-empty-servers: warn
+  no-server-example.com: error
+  operation-singular-tag: error
+  operation-tag-defined: error
+  tag-description: warn
+  tags-alphabetical: error

@@ -1,5 +1,10 @@
 version: '3'
 
+includes:
+  api:v1:
+    taskfile: ./api/v1
+    dir: ./api/v1
+
 vars:
   VERSION:
     sh: gitversion /showvariable SemVer

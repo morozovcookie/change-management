@@ -1,0 +1,13 @@
+get:
+  operationId: getCRQById
+  summary: Retrieve a single change request by id
+  description: Method return a single change request by it unique identifier
+  tags:
+    - CRQ
+  parameters:
+    - $ref: ./../parameters/_index.yml#/crqId
+  responses:
+    '200':
+      description: OK
+    '400':
+      description: Bad Request

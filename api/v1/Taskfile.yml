@@ -1,0 +1,17 @@
+version: '3'
+
+tasks:
+  lint:
+    cmds:
+      - >
+        docker run \
+          --rm \
+          -v {{.ROOT_DIR}}:/spec \
+          redocly/cli@{{.REDOCLY_CLI_SHA}} \
+          lint api/v1/openapi.yml
+    desc: Check OpenAPI code style with redocli
+    preconditions:
+      - test -s {{.TASKFILE_DIR}}/openapi.yml
+    vars:
+      REDOCLY_CLI_SHA: sha256:b2537e2f5858e78c1a4e1030f07a52f93aa8813e55017f95df06a338a98cf4f6
+    silent: true
