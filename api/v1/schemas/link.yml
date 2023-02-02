@@ -1,0 +1,6 @@
+title: Link
+type: string
+format: uri
+description: The link
+example: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+nullable: false

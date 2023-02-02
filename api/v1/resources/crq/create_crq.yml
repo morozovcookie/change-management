@@ -36,29 +36,10 @@ requestBody:
 
 responses:
   201:
-    description: Change request successfully created
-    headers:
-      Location:
-        description: Indicates the URL to the newly created resource
-        schema:
-          $ref: ./../../headers/location.yml
+    $ref: responses/create_crq.yml
 
   400:
-    description: Invalid request
-    content:
-      application/json:
-        schema:
-          $ref: ./../../responses/error.yml
-        example:
-          code: invalid
-          message: 'invalid "limit" query arg value: expected non-negative int'
+    $ref: ./../../responses/invalid.yml
 
   500:
-    description: Unexpected error
-    content:
-      application/json:
-        schema:
-          $ref: ./../../responses/error.yml
-        example:
-          code: internal
-          message: an internal error has occurred
+    $ref: ./../../responses/internal.yml

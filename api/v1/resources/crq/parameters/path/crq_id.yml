@@ -8,5 +8,5 @@ style: simple
 explode: false
 allowReserved: false
 schema:
-  $ref: ./../../../../schemas/_index.yml#/id
+  $ref: ./../../../../schemas/id.yml
 example: 8x8cqdf0shscsy4rtrndwliqtaynrvct

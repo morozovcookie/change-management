@@ -1,0 +1,9 @@
+description: Internal server error
+
+content:
+  application/json:
+    schema:
+      $ref: ./../schemas/error.yml
+    example:
+      code: internal
+      message: an internal error has occurred

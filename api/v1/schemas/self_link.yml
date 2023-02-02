@@ -1,0 +1,8 @@
+type: object
+description: Set of links
+properties:
+  self:
+    $ref: link.yml
+required: 
+  - self
+nullable: false

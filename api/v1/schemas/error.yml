@@ -12,6 +12,7 @@ properties:
     description: An API error type
     enum:
       - invalid
+      - not_found
       - internal
     default: internal
     example: internal

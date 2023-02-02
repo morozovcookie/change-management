@@ -1,0 +1,5 @@
+description: Change request successfully created
+
+headers:
+  Location:
+    $ref: ./../../../headers/location.yml

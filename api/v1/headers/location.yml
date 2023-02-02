@@ -1,5 +1,4 @@
-title: Location header
+description: Location header
 
-type: string
-
-format: uri
+schema:
+  $ref: ./../schemas/link.yml

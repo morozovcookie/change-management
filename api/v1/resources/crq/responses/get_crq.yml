@@ -1,0 +1,28 @@
+description: >-
+  An object that contains information about selected change request and set of 
+  useful links
+
+content:
+  application/json:
+    schema:
+      allOf:
+        - $ref: ./../schemas/crq.yml
+        - type: object
+          properties:
+            _links:
+              $ref: ./../../../schemas/self_link.yml
+          required:
+            - _links
+    example:
+      _links:
+        self: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+      id: zd008y7tix97kxtd6y8jddt8ab11m76f
+      summary: Bump service <service-name> version
+      description: |
+        Bump <service-name> version
+
+        CHANGELOG:
+          - minor fixes
+      type: autocrq
+      isAutoClose: true
+      createdAt: 1675368234

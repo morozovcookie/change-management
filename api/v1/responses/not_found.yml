@@ -1,0 +1,9 @@
+description: The resource was not found
+
+content:
+  application/json:
+    schema:
+      $ref: ./../schemas/error.yml
+    example:
+      code: not_found
+      message: The resource with specified identifier does not exist

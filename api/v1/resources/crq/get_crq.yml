@@ -2,7 +2,9 @@ operationId: getCRQById
 
 summary: Retrieve a single change request by id
 
-description: Method return a single change request by it unique identifier
+description: |
+  To retrieve information about specific change request, you should send a GET 
+  request to `/api/v1/crq/` with specified change request unique identifier.
 
 tags:
   - CRQ
@@ -11,8 +13,11 @@ parameters:
   - $ref: parameters/_index.yml#/crqId
 
 responses:
-  '200':
-    description: OK
-    
-  '400':
-    description: Bad Request
+  200:
+    $ref: responses/get_crq.yml
+
+  404:
+    $ref: ./../../responses/not_found.yml
+
+  500:
+    $ref: ./../../responses/internal.yml
