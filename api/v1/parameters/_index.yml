@@ -1,5 +1,0 @@
-start:
-  $ref: query/start.yml
-
-limit:
-  $ref: query/limit.yml

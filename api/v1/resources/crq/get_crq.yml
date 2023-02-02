@@ -10,7 +10,7 @@ tags:
   - CRQ
 
 parameters:
-  - $ref: parameters/_index.yml#/crqId
+  - $ref: parameters/path/crq_id.yml
 
 responses:
   200:
