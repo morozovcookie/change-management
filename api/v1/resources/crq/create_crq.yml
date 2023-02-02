@@ -7,9 +7,58 @@ description: Method creates a new change request
 tags:
   - CRQ
 
-responses:
-  '200':
-    description: OK
+requestBody:
+  description: |
+    To create a new change request you should send a POST request to 
+    `/api/v1/crq`.
 
-  '400':
-    description: Bad Request
+    You should know that change request does not have any unique parameter in 
+    request that could be used to prevent creation twice. 
+    If you will send two requests with the same body than you will get two 
+    change requests with the different unique identifiers.
+
+    As a result you will get relative URL to the created change request in the 
+    `Location` header with HTTP status code `201 Created`.
+  content:
+    application/json:
+      schema:
+        $ref: bodies/create_crq.yml
+      example:
+        summary: Bump service <service-name> version
+        descirption: |
+          Bump <service-name> version
+
+          CHANGELOG:
+            - minor fixes
+        type: autocrq
+        isAutoClose: true
+  required: true
+
+responses:
+  201:
+    description: Change request successfully created
+    headers:
+      Location:
+        description: Indicates the URL to the newly created resource
+        schema:
+          $ref: ./../../headers/location.yml
+
+  400:
+    description: Invalid request
+    content:
+      application/json:
+        schema:
+          $ref: ./../../responses/error.yml
+        example:
+          code: invalid
+          message: 'invalid "limit" query arg value: expected non-negative int'
+
+  500:
+    description: Unexpected error
+    content:
+      application/json:
+        schema:
+          $ref: ./../../responses/error.yml
+        example:
+          code: internal
+          message: an internal error has occurred

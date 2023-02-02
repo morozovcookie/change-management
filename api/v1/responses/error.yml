@@ -1,0 +1,26 @@
+title: Error
+
+required:
+  - code
+  - message
+
+type: object
+
+properties:
+  code:
+    type: string
+    description: An API error type
+    enum:
+      - invalid
+      - internal
+    default: internal
+    example: internal
+  message:
+    type: string
+    description: Human readable message
+    default: an internal error has occurred
+    example: an internal error has occurred
+
+additionalProperties: false
+
+nullable: false

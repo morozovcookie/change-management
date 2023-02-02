@@ -1,0 +1,39 @@
+title: Create CRQ request
+
+required:
+  - summary
+  - descirption
+
+type: object
+
+properties:
+  summary:
+    type: string
+    description: The short-form description of change
+    example: Bump service <service-name> version
+  descirption:
+    type: string
+    description: The long-form description of change
+    example: |
+      Bump <service-name> version
+
+      CHANGELOG:
+        - minor fixes
+  type:
+    type: string
+    description: The type of change
+    enum:
+      - crq
+      - autocrq
+    default: crq
+    example: crq
+  isAutoClose:
+    type: boolean
+    description: >-
+      This flag indicates that change request should be closed automatically
+    default: false
+    example: false
+
+additionalProperties: false
+
+nullable: false

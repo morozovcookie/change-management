@@ -1,0 +1,5 @@
+title: Location header
+
+type: string
+
+format: uri
