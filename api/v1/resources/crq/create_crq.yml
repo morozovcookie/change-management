@@ -1,0 +1,15 @@
+operationId: createCRQ
+
+summary: Create a single change request
+
+description: Method creates a new change request
+
+tags:
+  - CRQ
+
+responses:
+  '200':
+    description: OK
+
+  '400':
+    description: Bad Request

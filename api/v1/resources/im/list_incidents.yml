@@ -1,0 +1,15 @@
+operationId: listIncidents
+
+summary: Get list of incidents
+
+description: Method returns a list of incidents with applied filters
+
+tags:
+  - IM
+
+responses:
+  '200':
+    description: OK
+
+  '400':
+    description: Bad Request

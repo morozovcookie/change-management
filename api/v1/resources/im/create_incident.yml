@@ -1,0 +1,15 @@
+operationId: createIncident
+
+summary: Create a single incident
+
+description: Method creates a new incident
+
+tags:
+  - IM
+
+responses:
+  '200':
+    description: OK
+
+  '400':
+    description: Bad Request

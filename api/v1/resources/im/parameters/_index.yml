@@ -1,0 +1,2 @@
+incidentId:
+  $ref: path/incident_id.yml
