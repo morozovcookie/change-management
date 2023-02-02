@@ -7,6 +7,10 @@ description: Method returns a list of change requests with applied filters
 tags:
   - CRQ
 
+parameters:
+  - $ref: ./../../parameters/_index.yml#/start
+  - $ref: ./../../parameters/_index.yml#/limit
+
 responses:
   '200':
     description: OK

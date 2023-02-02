@@ -1,0 +1,15 @@
+name: start
+in: query
+description: The count of records that should be skipped
+required: false
+deprecated: false
+allowEmptyValue: false
+style: form
+explode: true
+allowReserved: false
+schema:
+  minimum: 0
+  type: integer
+  default: 0
+  nullable: false
+example: 0

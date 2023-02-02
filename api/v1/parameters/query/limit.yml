@@ -1,0 +1,16 @@
+name: limit
+in: query
+description: The maximum records that should be returned
+required: false
+deprecated: false
+allowEmptyValue: false
+style: form
+explode: true
+allowReserved: false
+schema:
+  maximum: 100
+  minimum: 1
+  type: integer
+  default: 20
+  nullable: false
+example: 50

@@ -7,6 +7,10 @@ description: Method returns a list of incidents with applied filters
 tags:
   - IM
 
+parameters:
+  - $ref: ./../../parameters/_index.yml#/start
+  - $ref: ./../../parameters/_index.yml#/limit
+
 responses:
   '200':
     description: OK
