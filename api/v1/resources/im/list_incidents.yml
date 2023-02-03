@@ -2,7 +2,11 @@ operationId: listIncidents
 
 summary: Get list of incidents
 
-description: Method returns a list of incidents with applied filters
+description: |
+  To list all of the incidents, send a GET request to `/api/v1/im`.
+
+  The result will be a JSON object with a `data` key. This will be set to an 
+  array of incidents, each of which will contain the incident attributes.
 
 tags:
   - IM
@@ -12,8 +16,11 @@ parameters:
   - $ref: ../../parameters/_index.yml#/limit
 
 responses:
-  '200':
-    description: OK
+  200:
+    $ref: responses/list_incidents.yml
 
-  '400':
-    description: Bad Request
+  400:
+    $ref: ../../responses/invalid.yml
+
+  500:
+    $ref: ../../responses/internal.yml

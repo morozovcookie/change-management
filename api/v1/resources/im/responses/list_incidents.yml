@@ -1,0 +1,47 @@
+description: |
+  An object that contains filtered list of incidents. Each array element will 
+  contains a set of useful links to the presented incident object. 
+
+  In case if no one incident was matched to the set of filters than will returns 
+  an empty array.
+
+  Also an object will contain pagination information:
+    - set of links
+    - count elemnts in given array
+    - total incidents count that was matched with set of filters
+    - number of page
+    - maximum records per page
+
+content:
+  application/json:
+    schema:
+      allOf: 
+        - $ref: ../../../schemas/_index.yml#/list
+        - type: object
+          required: 
+            - data
+          properties: 
+            data:
+              type: array
+              minItems: 0
+              maxItems: 50
+              uniqueItems: true
+              items: 
+                $ref: ../../../schemas/_index.yml#/incident
+    example:
+      _links:
+        self: https://example.com/api/v1/im
+        base: https://example.com
+      limit: 10
+      total: 1
+      start: 0
+      data:
+        - _links:
+            self: >-
+              https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+          id: zd008y7tix97kxtd6y8jddt8ab11m76f
+          summary: Incident on payroll system
+          description: >-
+            Since the release of a new Version the Data in the database is all 
+            scrambled up and the System wont start.
+          createdAt: 1675368234

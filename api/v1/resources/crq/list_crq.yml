@@ -2,7 +2,12 @@ operationId: listCRQ
 
 summary: Get list of change requests
 
-description: Method returns a list of change requests with applied filters
+description: |
+  To list all of the change requests, send a GET request to `/api/v1/crq`.
+
+  The result will be a JSON object with a `data` key. This will be set to an 
+  array of change requests, each of which will contain the change request 
+  attributes.
 
 tags:
   - CRQ
