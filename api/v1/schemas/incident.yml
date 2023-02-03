@@ -1,0 +1,32 @@
+title: Incident
+
+required:
+  - _links
+  - id
+  - summary
+  - description
+  - createdAt
+
+type: object
+
+properties:
+  _links:
+    $ref: self_link.yml
+  id:
+    $ref: id.yml
+  summary:
+    type: string
+    description: The short-form description of change
+    example: Incident on payroll system
+  description:
+    type: string
+    description: The long-form description of change
+    example: >-
+      Since the release of a new Version the Data in the database is all 
+      scrambled up and the System wont start.
+  createdAt:
+    $ref: timestamp.yml
+  updatedAt:
+    $ref: timestamp.yml
+
+nullable: false

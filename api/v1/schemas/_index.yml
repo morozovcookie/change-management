@@ -4,6 +4,8 @@ error:
   $ref: error.yml
 id:
   $ref: id.yml
+incident:
+  $ref: incident.yml
 limit:
   $ref: limit.yml
 link:

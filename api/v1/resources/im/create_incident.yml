@@ -4,7 +4,7 @@ summary: Create a single incident
 
 description: |
     To create a new incident you should send a POST request to 
-    `/api/v1/incident`.
+    `/api/v1/im`.
 
     You should know that incident does not have any unique parameter in 
     request that could be used to prevent creation twice. 

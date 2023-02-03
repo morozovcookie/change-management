@@ -1,0 +1,18 @@
+description: >-
+  An object that contains information about selected incident and set of 
+  useful links
+
+content:
+  application/json:
+    schema:
+      $ref: ../../../schemas/_index.yml#/incident
+    example:
+      _links:
+        self: >-
+          https://example.com/api/v1/incident/zd008y7tix97kxtd6y8jddt8ab11m76f
+      id: zd008y7tix97kxtd6y8jddt8ab11m76f
+      summary: Incident on payroll system
+      description: >-
+        Since the release of a new Version the Data in the database is all 
+        scrambled up and the System wont start.
+      createdAt: 1675368234

@@ -2,7 +2,9 @@ operationId: getIncidentById
 
 summary: Retrieve a single incident by id
 
-description: Method return a single incident by it unique identifier
+description: |
+  To retrieve information about specific incident, you should send a GET 
+  request to `/api/v1/im/` with specified incident unique identifier.
 
 tags:
   - IM
@@ -11,8 +13,11 @@ parameters:
   - $ref: ../../parameters/_index.yml#/incidentId
 
 responses:
-  '200':
-    description: OK
+  200:
+    $ref: responses/get_incident.yml
 
-  '400':
-    description: Bad Request
+  400:
+    $ref: ../../responses/not_found.yml
+  
+  500:
+    $ref: ../../responses/internal.yml
