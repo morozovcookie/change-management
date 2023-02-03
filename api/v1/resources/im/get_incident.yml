@@ -8,7 +8,7 @@ tags:
   - IM
 
 parameters:
-  - $ref: parameters/path/incident_id.yml
+  - $ref: ../../parameters/_index.yml#/incidentId
 
 responses:
   '200':

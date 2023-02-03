@@ -18,24 +18,11 @@ tags:
   - CRQ
 
 requestBody:
-  content:
-    application/json:
-      schema:
-        $ref: bodies/create_crq.yml
-      example:
-        summary: Bump service <service-name> version
-        descirption: |
-          Bump <service-name> version
-
-          CHANGELOG:
-            - minor fixes
-        type: autocrq
-        isAutoClose: true
-  required: true
+  $ref: ../../bodies/_index.yml#/createCRQ
 
 responses:
   201:
-    $ref: responses/create_crq.yml
+    $ref: ../../responses/_index.yml#/created
 
   400:
     $ref: ../../responses/_index.yml#/invalid

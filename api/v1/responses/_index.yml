@@ -1,3 +1,5 @@
+created:
+  $ref: created.yml
 internal:
   $ref: internal.yml
 invalid:

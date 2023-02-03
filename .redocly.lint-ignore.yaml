@@ -1,8 +1,8 @@
 # This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.
 # See https://redoc.ly/docs/cli/ for more information.
-api/v1/resources/crq/parameters/path/crq_id.yml:
+api/v1/parameters/path/crq_id.yml:
   no-invalid-parameter-examples:
     - '#/schema'
-api/v1/resources/im/parameters/path/incident_id.yml:
+api/v1/parameters/path/incident_id.yml:
   no-invalid-parameter-examples:
     - '#/schema'

@@ -2,14 +2,30 @@ operationId: createIncident
 
 summary: Create a single incident
 
-description: Method creates a new incident
+description: |
+    To create a new incident you should send a POST request to 
+    `/api/v1/incident`.
+
+    You should know that incident does not have any unique parameter in 
+    request that could be used to prevent creation twice. 
+    If you will send two requests with the same body than you will get two 
+    incidents with the different unique identifiers.
+
+    As a result you will get relative URL to the created incident in the 
+    `Location` header with HTTP status code `201 Created`.
 
 tags:
   - IM
 
-responses:
-  '200':
-    description: OK
+requestBody: 
+  $ref: ../../bodies/_index.yml#/createIncident
 
-  '400':
-    description: Bad Request
+responses:
+  200:
+    $ref: ../../responses/_index.yml#/created
+
+  400:
+    $ref: ../../responses/_index.yml#/invalid
+  
+  500:
+    $ref: ../../responses/_index.yml#/internal

@@ -1,0 +1,28 @@
+content: 
+  application/json:
+    schema: 
+      type: object
+      required: 
+        - summary
+        - description
+      properties:
+        summary:
+          type: string
+          description: The short-form description of change
+          example: Incident on payroll system
+        description:
+          type: string
+          description: The long-form description of change
+          example: >-
+            Since the release of a new Version the Data in the database is all 
+            scrambled up and the System wont start.
+      additionalProperties: false
+      nullable: false
+    
+    example:
+      summary: Incident on payroll system
+      description: >-
+        Since the release of a new Version the Data in the database is all 
+        scrambled up and the System wont start.
+
+required: true
