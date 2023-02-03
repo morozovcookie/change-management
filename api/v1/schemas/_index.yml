@@ -4,9 +4,17 @@ error:
   $ref: error.yml
 id:
   $ref: id.yml
+limit:
+  $ref: limit.yml
 link:
   $ref: link.yml
+links:
+  $ref: links.yml
+list:
+  $ref: list.yml
 selfLink:
   $ref: self_link.yml
+start:
+  $ref: start.yml
 timestamp:
   $ref: timestamp.yml

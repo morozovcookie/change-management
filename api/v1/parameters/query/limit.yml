@@ -8,9 +8,5 @@ style: form
 explode: true
 allowReserved: false
 schema:
-  maximum: 50
-  minimum: 1
-  type: integer
-  default: 20
-  nullable: false
+  $ref: ../../schemas/_index.yml#/limit
 example: 50

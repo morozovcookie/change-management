@@ -1,0 +1,7 @@
+title: Limit
+maximum: 50
+minimum: 1
+type: integer
+default: 20
+nullable: false
+example: 10

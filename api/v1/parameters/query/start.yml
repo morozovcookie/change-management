@@ -8,8 +8,5 @@ style: form
 explode: true
 allowReserved: false
 schema:
-  minimum: 0
-  type: integer
-  default: 0
-  nullable: false
+  $ref: ../../schemas/_index.yml#/start
 example: 0

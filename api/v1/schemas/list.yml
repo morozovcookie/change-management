@@ -1,0 +1,23 @@
+title: List
+
+required:
+  - _links
+  - limit
+  - start
+  - total
+
+type: object
+
+properties: 
+  _links:
+    $ref: links.yml
+  limit:
+    $ref: limit.yml
+  start:
+    $ref: start.yml
+  total:
+    maximum: 50
+    minimum: 1
+    type: integer
+    nullable: false
+    example: 10

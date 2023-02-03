@@ -8,7 +8,7 @@ tasks:
           --rm \
           -v {{.ROOT_DIR}}:/spec \
           redocly/cli@{{.REDOCLY_CLI_SHA}} \
-          lint api/v1/openapi.yml
+          lint api/v1/openapi.yml {{.CLI_ARGS}}
     desc: Check OpenAPI code style with redocli
     preconditions:
       - test -s {{.TASKFILE_DIR}}/openapi.yml

@@ -14,4 +14,38 @@ description: |
 
 content:
   application/json:
-    schema: {}
+    schema:
+      allOf: 
+        - $ref: ../../../schemas/_index.yml#/list
+        - type: object
+          required: 
+            - data
+          properties: 
+            data:
+              type: array
+              minItems: 0
+              maxItems: 50
+              uniqueItems: true
+              items: 
+                $ref: ../../../schemas/_index.yml#/crq
+    example:
+      _links:
+        self: https://example.com/api/v1/crq
+        base: https://example.com
+      limit: 10
+      total: 1
+      start: 0
+      data:
+        - _links:
+            self: >-
+              https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+          id: zd008y7tix97kxtd6y8jddt8ab11m76f
+          summary: Bump service <service-name> version
+          description: |
+            Bump <service-name> version
+    
+            CHANGELOG:
+              - minor fixes
+          type: autocrq
+          isAutoClose: true
+          createdAt: 1675368234

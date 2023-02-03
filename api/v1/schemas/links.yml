@@ -1,0 +1,21 @@
+title: Links
+
+required:
+  - self
+  - base
+
+type: object
+
+properties:
+  self:
+    $ref: link.yml
+  base:
+    $ref: link.yml
+  next:
+    $ref: link.yml
+  prev:
+    $ref: link.yml
+
+additionalProperties: false
+
+nullable: false
