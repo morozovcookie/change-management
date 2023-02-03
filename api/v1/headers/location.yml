@@ -1,4 +1,4 @@
 description: Location header
 
 schema:
-  $ref: ./../schemas/link.yml
+  $ref: ../schemas/_index.yml#/link

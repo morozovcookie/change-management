@@ -1,0 +1,12 @@
+crq:
+  $ref: crq.yml
+error:
+  $ref: error.yml
+id:
+  $ref: id.yml
+link:
+  $ref: link.yml
+selfLink:
+  $ref: self_link.yml
+timestamp:
+  $ref: timestamp.yml

@@ -8,12 +8,15 @@ tags:
   - CRQ
 
 parameters:
-  - $ref: ./../../parameters/query/start.yml
-  - $ref: ./../../parameters/query/limit.yml
+  - $ref: ../../parameters/_index.yml#/start
+  - $ref: ../../parameters/_index.yml#/limit
 
 responses:
-  '200':
-    description: OK
+  200:
+    $ref: responses/list_crq.yml
 
-  '400':
-    description: Bad Request
+  400:
+    $ref: ../../responses/_index.yml#/invalid
+
+  500:
+    $ref: ../../responses/_index.yml#/internal

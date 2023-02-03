@@ -8,8 +8,8 @@ tags:
   - IM
 
 parameters:
-  - $ref: ./../../parameters/query/start.yml
-  - $ref: ./../../parameters/query/limit.yml
+  - $ref: ../../parameters/_index.yml#/start
+  - $ref: ../../parameters/_index.yml#/limit
 
 responses:
   '200':

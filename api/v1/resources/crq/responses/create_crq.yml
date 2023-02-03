@@ -1,5 +1,7 @@
-description: Change request successfully created
+description: >-
+  In case of success responses would not contains any body. Instead of this you 
+  can find link to the created resource in the `Location` header.
 
 headers:
   Location:
-    $ref: ./../../../headers/location.yml
+    $ref: ../../../headers/_index.yml#/location

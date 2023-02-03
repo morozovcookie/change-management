@@ -1,4 +1,4 @@
-title: 'Unique identifier'
+title: Unique identifier
 pattern: ^[0-9a-z]{32}$
 type: string
 description: ''

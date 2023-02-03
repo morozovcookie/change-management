@@ -2,13 +2,7 @@ operationId: createCRQ
 
 summary: Create a single change request
 
-description: Method creates a new change request
-
-tags:
-  - CRQ
-
-requestBody:
-  description: |
+description: |
     To create a new change request you should send a POST request to 
     `/api/v1/crq`.
 
@@ -19,6 +13,11 @@ requestBody:
 
     As a result you will get relative URL to the created change request in the 
     `Location` header with HTTP status code `201 Created`.
+
+tags:
+  - CRQ
+
+requestBody:
   content:
     application/json:
       schema:
@@ -39,7 +38,7 @@ responses:
     $ref: responses/create_crq.yml
 
   400:
-    $ref: ./../../responses/invalid.yml
+    $ref: ../../responses/_index.yml#/invalid
 
   500:
-    $ref: ./../../responses/internal.yml
+    $ref: ../../responses/_index.yml#/internal

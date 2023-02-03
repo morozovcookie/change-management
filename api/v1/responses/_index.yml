@@ -1,0 +1,6 @@
+internal:
+  $ref: internal.yml
+invalid:
+  $ref: invalid.yml
+notFound:
+  $ref: not_found.yml

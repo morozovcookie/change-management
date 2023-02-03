@@ -6,6 +6,10 @@ info:
 
 servers: []
 
+components: 
+  schemas: 
+    $ref: schemas/_index.yml
+
 tags:
   - name: CRQ
     description: Change request management API

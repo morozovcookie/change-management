@@ -17,7 +17,7 @@ responses:
     $ref: responses/get_crq.yml
 
   404:
-    $ref: ./../../responses/not_found.yml
+    $ref: ../../responses/_index.yml#/notFound
 
   500:
-    $ref: ./../../responses/internal.yml
+    $ref: ../../responses/_index.yml#/internal

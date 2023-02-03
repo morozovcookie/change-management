@@ -3,7 +3,7 @@ description: The resource was not found
 content:
   application/json:
     schema:
-      $ref: ./../schemas/error.yml
+      $ref: ../schemas/_index.yml#/error
     example:
       code: not_found
       message: The resource with specified identifier does not exist

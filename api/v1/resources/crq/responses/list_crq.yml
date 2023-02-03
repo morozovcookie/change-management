@@ -1,0 +1,17 @@
+description: |
+  An object that contains filtered list of change requests. Each array element 
+  will contains a set of useful links to the presented change request object. 
+
+  In case if no one change request was matched to the set of filters than will 
+  returns an empty array.
+
+  Also an object will contain pagination information:
+    - set of links
+    - count elemnts in given array
+    - total change requests count that was matched with set of filters
+    - number of page
+    - maximum records per page
+
+content:
+  application/json:
+    schema: {}

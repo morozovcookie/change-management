@@ -3,7 +3,7 @@ description: Invalid request
 content:
   application/json:
     schema:
-      $ref: ./../schemas/error.yml
+      $ref: ../schemas/_index.yml#/error
     example:
       code: invalid
       message: The request that you did provide has an invalid values

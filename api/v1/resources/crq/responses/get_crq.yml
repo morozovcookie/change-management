@@ -5,14 +5,7 @@ description: >-
 content:
   application/json:
     schema:
-      allOf:
-        - $ref: ./../schemas/crq.yml
-        - type: object
-          properties:
-            _links:
-              $ref: ./../../../schemas/self_link.yml
-          required:
-            - _links
+      $ref: ../../../schemas/_index.yml#/crq
     example:
       _links:
         self: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f

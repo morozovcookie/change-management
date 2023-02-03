@@ -3,7 +3,7 @@ description: Internal server error
 content:
   application/json:
     schema:
-      $ref: ./../schemas/error.yml
+      $ref: ../schemas/_index.yml#/error
     example:
       code: internal
       message: an internal error has occurred

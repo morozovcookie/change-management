@@ -1,4 +1,7 @@
+title: CRQ
+
 required:
+  - _links
   - id
   - summary
   - description
@@ -9,8 +12,10 @@ required:
 type: object
 
 properties:
+  _links:
+    $ref: self_link.yml
   id:
-    $ref: ./../../../schemas/id.yml
+    $ref: id.yml
   summary:
     type: string
     description: The short-form description of change
@@ -38,8 +43,8 @@ properties:
     default: false
     example: false
   createdAt:
-    $ref: ./../../../schemas/timestamp.yml
+    $ref: timestamp.yml
   updatedAt:
-    $ref: ./../../../schemas/timestamp.yml
+    $ref: timestamp.yml
 
 nullable: false
