@@ -7,8 +7,6 @@ info:
 servers: []
 
 components:
-  requestBodies: 
-    $ref: bodies/_index.yml 
   parameters: 
     $ref: parameters/_index.yml
   schemas: 

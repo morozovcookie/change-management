@@ -1,4 +1,0 @@
-createCRQ:
-  $ref: create_crq.yml
-createIncident:
-  $ref: create_incident.yml

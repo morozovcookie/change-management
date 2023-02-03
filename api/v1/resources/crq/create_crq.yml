@@ -18,7 +18,7 @@ tags:
   - CRQ
 
 requestBody:
-  $ref: ../../bodies/_index.yml#/createCRQ
+  $ref: bodies/create_crq.yml
 
 responses:
   201:

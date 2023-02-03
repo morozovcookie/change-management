@@ -18,7 +18,7 @@ tags:
   - IM
 
 requestBody: 
-  $ref: ../../bodies/_index.yml#/createIncident
+  $ref: bodies/create_incident.yml
 
 responses:
   200:
