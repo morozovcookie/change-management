@@ -10,7 +10,7 @@ tags:
   - IM
 
 parameters:
-  - $ref: ../../parameters/_index.yml#/incidentId
+  - $ref: parameters/path/incident_id.yml
 
 responses:
   200:

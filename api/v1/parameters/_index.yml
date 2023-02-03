@@ -1,9 +1,3 @@
-# path
-crqId:
-  $ref: path/crq_id.yml
-incidentId:
-  $ref: path/incident_id.yml
-
 # query
 limit:
   $ref: query/limit.yml
