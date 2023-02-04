@@ -1,17 +1,167 @@
 version: '3'
 
+vars:
+  REDOCLY_CLI_SHA: >-
+    sha256:b2537e2f5858e78c1a4e1030f07a52f93aa8813e55017f95df06a338a98cf4f6
+
 tasks:
   lint:
     cmds:
-      - >
+      - >-
         docker run \
           --rm \
           -v {{.ROOT_DIR}}:/spec \
           redocly/cli@{{.REDOCLY_CLI_SHA}} \
           lint api/v1/openapi.yml {{.CLI_ARGS}}
-    desc: Check OpenAPI code style with redocli
+    desc: Reports on problems and executes preprocessors and rules
+    preconditions:
+      - test -s {{.TASKFILE_DIR}}/openapi.yml
+    silent: true
+
+  bundle:
+    cmds:
+      - >-
+        docker run \
+          --rm \
+          -v {{.ROOT_DIR}}:/spec \
+          redocly/cli@{{.REDOCLY_CLI_SHA}} \
+          bundle /spec/api/v1/openapi.yml \
+          --output /spec/api/v1/openapi.bundle.{{.EXT}} \
+          --lint \
+          --ext {{.EXT}}
+    desc: >-
+      Pulls the relevant parts of an API definition into a single file output in 
+      JSON or YAML format
+    sources:
+      - >-
+        {{.TASKFILE_DIR}}/**/*.yml
+    generates:
+      - >-
+        {{.TASKFILE_DIR}}/openapi.bundle.{{.EXT}}
+    preconditions:
+      - test -s {{.TASKFILE_DIR}}/openapi.yml
+    silent: true
+    internal: true
+  
+  bundle:json:
+    cmds:
+      - task: bundle
+        vars:
+          EXT: json
+    desc: >-
+      Pulls the relevant parts of an API definition into a single file output in 
+      JSON format
+    silent: true
+        
+  bundle:yml:
+    cmds:
+      - task: bundle
+        vars:
+          EXT: yml
+    desc: >-
+      Pulls the relevant parts of an API definition into a single file output in 
+      YAML format
+    silent: true
+
+  generate:oapi:
+    cmds:
+      - task: bundle:yml
+      - test -d {{.ROOT_DIR}}/pkg/oapi || mkdir -p {{.ROOT_DIR}}/pkg/oapi
+      - >-
+        {{.ROOT_DIR}}/bin/oapi-codegen \
+          -generate types,client,chi-server,spec \
+          -package oapi \
+          -o {{.ROOT_DIR}}/pkg/oapi/change_management.go \
+          {{.TASKFILE_DIR}}/openapi.bundle.yml
+    deps:
+      - install:oapi
+    desc: Generates Go code with https://github.com/deepmap/oapi-codegen
+    sources:
+      - >-
+        {{.TASKFILE_DIR}}/openapi.bundle.yml
+    generates:
+      - >-
+        {{.ROOT_DIR}}/pkg/oapi/**
+    preconditions:
+      - test -s {{.TASKFILE_DIR}}/openapi.yml
+      - test -s {{.ROOT_DIR}}/bin/oapi-codegen
+    silent: true
+
+  install:oapi:
+    cmds:
+      - >-
+        GOBIN={{.ROOT_DIR}}/bin go install \
+          github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.12.4
+    status:
+      - test -s {{.ROOT_DIR}}/bin/oapi-codegen
+    internal: true
+    silent: true
+
+  generate:openapi:
+    cmds:
+      - task: bundle:yml
+      - test -d {{.ROOT_DIR}}/pkg/openapi || mkdir -p {{.ROOT_DIR}}/pkg/openapi
+      - >-
+        docker run \
+          --rm \
+          -v {{.ROOT_DIR}}:/src \
+          openapitools/openapi-generator-cli@{{.GENERATOR_SHA}} \
+          generate \
+          -i /src/api/v1/openapi.bundle.yml \
+          -g go \
+          -o /src/pkg/openapi \
+          --package-name openapi \
+          --skip-validate-spec
+    deps:
+      - lint
+    desc: >-
+      Generates Go code with https://github.com/OpenAPITools/openapi-generator
+    sources:
+      - >-
+        {{.TASKFILE_DIR}}/openapi.bundle.yml
+    generates:
+      - >-
+        {{.ROOT_DIR}}/pkg/openapi/**
     preconditions:
       - test -s {{.TASKFILE_DIR}}/openapi.yml
     vars:
-      REDOCLY_CLI_SHA: sha256:b2537e2f5858e78c1a4e1030f07a52f93aa8813e55017f95df06a338a98cf4f6
+      GENERATOR_SHA: >-
+        sha256:f5b6f0d17334d8da38cfe999fb47df4d530e583c23ea0c19a0fc8cb1fc6fc9dd
     silent: true
+
+  generate:ogen:
+    cmds:
+      - task: bundle:yml
+      - test -d {{.ROOT_DIR}}/pkg/ogen || mkdir -p {{.ROOT_DIR}}/pkg/ogen
+      - >-
+        {{.ROOT_DIR}}/bin/ogen \
+          -target {{.ROOT_DIR}}/pkg/ogen \
+          -package ogen \
+          -clean \
+          -generate-tests \
+          -no-webhook-client \
+          -no-webhook-server \
+          {{.TASKFILE_DIR}}/openapi.bundle.yml
+    deps:
+      - install:ogen
+    desc: Generates Go code with https://github.com/ogen-go/ogen
+    sources:
+      - >-
+        {{.TASKFILE_DIR}}/openapi.bundle.yml
+    generates:
+      - >-
+        {{.ROOT_DIR}}/pkg/ogen/**
+    preconditions:
+      - test -s {{.TASKFILE_DIR}}/openapi.yml
+      - test -s {{.ROOT_DIR}}/bin/ogen
+    silent: true
+
+  install:ogen:
+    cmds:
+      - >-
+        GOBIN={{.ROOT_DIR}}/bin go install \
+          github.com/ogen-go/ogen/cmd/ogen@v0.58.0
+    status:
+      - test -s {{.ROOT_DIR}}/bin/ogen
+    silent: true
+    internal: true

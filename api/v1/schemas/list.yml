@@ -12,9 +12,9 @@ properties:
   _links:
     $ref: links.yml
   limit:
-    $ref: limit.yml
+    $ref: limit_type.yml
   start:
-    $ref: start.yml
+    $ref: start_type.yml
   total:
     maximum: 50
     minimum: 1

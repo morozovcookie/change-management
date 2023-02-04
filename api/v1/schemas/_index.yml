@@ -6,8 +6,8 @@ id:
   $ref: id.yml
 incident:
   $ref: incident.yml
-limit:
-  $ref: limit.yml
+limitType:
+  $ref: limit_type.yml
 link:
   $ref: link.yml
 links:
@@ -16,7 +16,7 @@ list:
   $ref: list.yml
 selfLink:
   $ref: self_link.yml
-start:
-  $ref: start.yml
+startType:
+  $ref: start_type.yml
 timestamp:
   $ref: timestamp.yml

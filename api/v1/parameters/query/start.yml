@@ -8,5 +8,5 @@ style: form
 explode: true
 allowReserved: false
 schema:
-  $ref: ../../schemas/_index.yml#/start
+  $ref: ../../schemas/_index.yml#/startType
 example: 0
