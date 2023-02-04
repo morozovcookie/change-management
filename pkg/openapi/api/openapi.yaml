@@ -1,0 +1,937 @@
+openapi: 3.0.0
+info:
+  title: Change Management
+  version: "1.0"
+servers:
+- url: /
+tags:
+- description: Change request management API
+  name: CRQ
+- description: Incident management API
+  name: IM
+paths:
+  /api/v1/crq:
+    get:
+      description: "To list all of the change requests, send a GET request to `/api/v1/crq`.\n\
+        \nThe result will be a JSON object with a `data` key. This will be set to\
+        \ an \narray of change requests, each of which will contain the change request\
+        \ \nattributes.\n"
+      operationId: listCRQ
+      parameters:
+      - allowEmptyValue: false
+        allowReserved: false
+        deprecated: false
+        description: The count of records that should be skipped
+        example: 0
+        explode: true
+        in: query
+        name: start
+        required: false
+        schema:
+          $ref: '#/components/schemas/start_type'
+        style: form
+      - allowEmptyValue: false
+        allowReserved: false
+        deprecated: false
+        description: The maximum records that should be returned
+        example: 50
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          $ref: '#/components/schemas/limit_type'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                _links:
+                  self: https://example.com/api/v1/crq
+                  base: https://example.com
+                limit: 10
+                total: 1
+                start: 0
+                data:
+                - _links:
+                    self: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+                  id: zd008y7tix97kxtd6y8jddt8ab11m76f
+                  summary: Bump service <service-name> version
+                  description: |
+                    Bump <service-name> version
+
+                    CHANGELOG:
+                      - minor fixes
+                  type: autocrq
+                  isAutoClose: true
+                  createdAt: 1675368234
+              schema:
+                $ref: '#/components/schemas/listCRQ_200_response'
+          description: "An object that contains filtered list of change requests.\
+            \ Each array element \nwill contains a set of useful links to the presented\
+            \ change request object. \n\nIn case if no one change request was matched\
+            \ to the set of filters than will \nreturns an empty array.\n\nAlso an\
+            \ object will contain pagination information:\n  - set of links\n  - count\
+            \ elemnts in given array\n  - total change requests count that was matched\
+            \ with set of filters\n  - number of page\n  - maximum records per page\n"
+        "400":
+          content:
+            application/json:
+              example:
+                code: invalid
+                message: The request that you did provide has an invalid values
+              schema:
+                $ref: '#/components/schemas/error'
+          description: Invalid request
+        "500":
+          content:
+            application/json:
+              example:
+                code: internal
+                message: an internal error has occurred
+              schema:
+                $ref: '#/components/schemas/error'
+          description: Internal server error
+      summary: Get list of change requests
+      tags:
+      - CRQ
+    post:
+      description: "To create a new change request you should send a POST request\
+        \ to \n`/api/v1/crq`.\n\nYou should know that change request does not have\
+        \ any unique parameter in \nrequest that could be used to prevent creation\
+        \ twice. \nIf you will send two requests with the same body than you will\
+        \ get two \nchange requests with the different unique identifiers.\n\nAs a\
+        \ result you will get relative URL to the created change request in the \n\
+        `Location` header with HTTP status code `201 Created`.\n"
+      operationId: createCRQ
+      requestBody:
+        $ref: '#/components/requestBodies/create_crq'
+      responses:
+        "201":
+          description: In case of success responses would not contains any body. Instead
+            of this you  can find link to the created resource in the `Location` header.
+          headers:
+            Location:
+              $ref: '#/components/headers/location'
+        "400":
+          content:
+            application/json:
+              example:
+                code: invalid
+                message: The request that you did provide has an invalid values
+              schema:
+                $ref: '#/components/schemas/error'
+          description: Invalid request
+        "500":
+          content:
+            application/json:
+              example:
+                code: internal
+                message: an internal error has occurred
+              schema:
+                $ref: '#/components/schemas/error'
+          description: Internal server error
+      summary: Create a single change request
+      tags:
+      - CRQ
+  /api/v1/crq/{crqId}:
+    get:
+      description: "To retrieve information about specific change request, you should\
+        \ send a GET \nrequest to `/api/v1/crq/` with specified change request unique\
+        \ identifier.\n"
+      operationId: getCRQById
+      parameters:
+      - allowReserved: false
+        deprecated: false
+        description: Change request unique identifier
+        example: 8x8cqdf0shscsy4rtrndwliqtaynrvct
+        explode: false
+        in: path
+        name: crqId
+        required: true
+        schema:
+          $ref: '#/components/schemas/id'
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                _links:
+                  self: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+                id: zd008y7tix97kxtd6y8jddt8ab11m76f
+                summary: Bump service <service-name> version
+                description: |
+                  Bump <service-name> version
+
+                  CHANGELOG:
+                    - minor fixes
+                type: autocrq
+                isAutoClose: true
+                createdAt: 1675368234
+              schema:
+                $ref: '#/components/schemas/crq'
+          description: An object that contains information about selected change request
+            and set of  useful links
+        "404":
+          content:
+            application/json:
+              example:
+                code: not_found
+                message: The resource with specified identifier does not exist
+              schema:
+                $ref: '#/components/schemas/error'
+          description: The resource was not found
+        "500":
+          content:
+            application/json:
+              example:
+                code: internal
+                message: an internal error has occurred
+              schema:
+                $ref: '#/components/schemas/error'
+          description: Internal server error
+      summary: Retrieve a single change request by id
+      tags:
+      - CRQ
+  /api/v1/im:
+    get:
+      description: "To list all of the incidents, send a GET request to `/api/v1/im`.\n\
+        \nThe result will be a JSON object with a `data` key. This will be set to\
+        \ an \narray of incidents, each of which will contain the incident attributes.\n"
+      operationId: listIncidents
+      parameters:
+      - allowEmptyValue: false
+        allowReserved: false
+        deprecated: false
+        description: The count of records that should be skipped
+        example: 0
+        explode: true
+        in: query
+        name: start
+        required: false
+        schema:
+          $ref: '#/components/schemas/start_type'
+        style: form
+      - allowEmptyValue: false
+        allowReserved: false
+        deprecated: false
+        description: The maximum records that should be returned
+        example: 50
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          $ref: '#/components/schemas/limit_type'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                _links:
+                  self: https://example.com/api/v1/im
+                  base: https://example.com
+                limit: 10
+                total: 1
+                start: 0
+                data:
+                - _links:
+                    self: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+                  id: zd008y7tix97kxtd6y8jddt8ab11m76f
+                  summary: Incident on payroll system
+                  description: Since the release of a new Version the Data in the
+                    database is all  scrambled up and the System wont start.
+                  createdAt: 1675368234
+              schema:
+                $ref: '#/components/schemas/listIncidents_200_response'
+          description: "An object that contains filtered list of incidents. Each array\
+            \ element will \ncontains a set of useful links to the presented incident\
+            \ object. \n\nIn case if no one incident was matched to the set of filters\
+            \ than will returns \nan empty array.\n\nAlso an object will contain pagination\
+            \ information:\n  - set of links\n  - count elemnts in given array\n \
+            \ - total incidents count that was matched with set of filters\n  - number\
+            \ of page\n  - maximum records per page\n"
+        "400":
+          content:
+            application/json:
+              example:
+                code: invalid
+                message: The request that you did provide has an invalid values
+              schema:
+                $ref: '#/components/schemas/error'
+          description: Invalid request
+        "500":
+          content:
+            application/json:
+              example:
+                code: internal
+                message: an internal error has occurred
+              schema:
+                $ref: '#/components/schemas/error'
+          description: Internal server error
+      summary: Get list of incidents
+      tags:
+      - IM
+    post:
+      description: "To create a new incident you should send a POST request to \n\
+        `/api/v1/im`.\n\nYou should know that incident does not have any unique parameter\
+        \ in \nrequest that could be used to prevent creation twice. \nIf you will\
+        \ send two requests with the same body than you will get two \nincidents with\
+        \ the different unique identifiers.\n\nAs a result you will get relative URL\
+        \ to the created incident in the \n`Location` header with HTTP status code\
+        \ `201 Created`.\n"
+      operationId: createIncident
+      requestBody:
+        $ref: '#/components/requestBodies/create_incident'
+      responses:
+        "200":
+          description: In case of success responses would not contains any body. Instead
+            of this you  can find link to the created resource in the `Location` header.
+          headers:
+            Location:
+              $ref: '#/components/headers/location'
+        "400":
+          content:
+            application/json:
+              example:
+                code: invalid
+                message: The request that you did provide has an invalid values
+              schema:
+                $ref: '#/components/schemas/error'
+          description: Invalid request
+        "500":
+          content:
+            application/json:
+              example:
+                code: internal
+                message: an internal error has occurred
+              schema:
+                $ref: '#/components/schemas/error'
+          description: Internal server error
+      summary: Create a single incident
+      tags:
+      - IM
+  /api/v1/im/{incidentId}:
+    get:
+      description: "To retrieve information about specific incident, you should send\
+        \ a GET \nrequest to `/api/v1/im/` with specified incident unique identifier.\n"
+      operationId: getIncidentById
+      parameters:
+      - allowReserved: false
+        deprecated: false
+        description: Incident unique identifier
+        example: 7bu21gwa31fk8fwtfk36444m4mvukgg0
+        explode: false
+        in: path
+        name: incidentId
+        required: true
+        schema:
+          $ref: '#/components/schemas/id'
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                _links:
+                  self: https://example.com/api/v1/incident/zd008y7tix97kxtd6y8jddt8ab11m76f
+                id: zd008y7tix97kxtd6y8jddt8ab11m76f
+                summary: Incident on payroll system
+                description: Since the release of a new Version the Data in the database
+                  is all  scrambled up and the System wont start.
+                createdAt: 1675368234
+              schema:
+                $ref: '#/components/schemas/incident'
+          description: An object that contains information about selected incident
+            and set of  useful links
+        "400":
+          content:
+            application/json:
+              example:
+                code: not_found
+                message: The resource with specified identifier does not exist
+              schema:
+                $ref: '#/components/schemas/error'
+          description: The resource was not found
+        "500":
+          content:
+            application/json:
+              example:
+                code: internal
+                message: an internal error has occurred
+              schema:
+                $ref: '#/components/schemas/error'
+          description: Internal server error
+      summary: Retrieve a single incident by id
+      tags:
+      - IM
+components:
+  headers:
+    location:
+      description: Location header
+      explode: false
+      schema:
+        $ref: '#/components/schemas/link'
+      style: simple
+  parameters:
+    start:
+      allowEmptyValue: false
+      allowReserved: false
+      deprecated: false
+      description: The count of records that should be skipped
+      example: 0
+      explode: true
+      in: query
+      name: start
+      required: false
+      schema:
+        $ref: '#/components/schemas/start_type'
+      style: form
+    limit:
+      allowEmptyValue: false
+      allowReserved: false
+      deprecated: false
+      description: The maximum records that should be returned
+      example: 50
+      explode: true
+      in: query
+      name: limit
+      required: false
+      schema:
+        $ref: '#/components/schemas/limit_type'
+      style: form
+    crq_id:
+      allowReserved: false
+      deprecated: false
+      description: Change request unique identifier
+      example: 8x8cqdf0shscsy4rtrndwliqtaynrvct
+      explode: false
+      in: path
+      name: crqId
+      required: true
+      schema:
+        $ref: '#/components/schemas/id'
+      style: simple
+    incident_id:
+      allowReserved: false
+      deprecated: false
+      description: Incident unique identifier
+      example: 7bu21gwa31fk8fwtfk36444m4mvukgg0
+      explode: false
+      in: path
+      name: incidentId
+      required: true
+      schema:
+        $ref: '#/components/schemas/id'
+      style: simple
+  requestBodies:
+    create_crq:
+      content:
+        application/json:
+          example:
+            summary: Bump service <service-name> version
+            description: |
+              Bump <service-name> version
+
+              CHANGELOG:
+                - minor fixes
+            type: autocrq
+            isAutoClose: true
+          schema:
+            $ref: '#/components/schemas/createCRQ_request'
+      required: true
+    create_incident:
+      content:
+        application/json:
+          example:
+            summary: Incident on payroll system
+            description: Since the release of a new Version the Data in the database
+              is all  scrambled up and the System wont start.
+          schema:
+            $ref: '#/components/schemas/createIncident_request'
+      required: true
+  responses:
+    list_crq:
+      content:
+        application/json:
+          example:
+            _links:
+              self: https://example.com/api/v1/crq
+              base: https://example.com
+            limit: 10
+            total: 1
+            start: 0
+            data:
+            - _links:
+                self: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+              id: zd008y7tix97kxtd6y8jddt8ab11m76f
+              summary: Bump service <service-name> version
+              description: |
+                Bump <service-name> version
+
+                CHANGELOG:
+                  - minor fixes
+              type: autocrq
+              isAutoClose: true
+              createdAt: 1675368234
+          schema:
+            $ref: '#/components/schemas/listCRQ_200_response'
+      description: "An object that contains filtered list of change requests. Each\
+        \ array element \nwill contains a set of useful links to the presented change\
+        \ request object. \n\nIn case if no one change request was matched to the\
+        \ set of filters than will \nreturns an empty array.\n\nAlso an object will\
+        \ contain pagination information:\n  - set of links\n  - count elemnts in\
+        \ given array\n  - total change requests count that was matched with set of\
+        \ filters\n  - number of page\n  - maximum records per page\n"
+    invalid:
+      content:
+        application/json:
+          example:
+            code: invalid
+            message: The request that you did provide has an invalid values
+          schema:
+            $ref: '#/components/schemas/error'
+      description: Invalid request
+    internal:
+      content:
+        application/json:
+          example:
+            code: internal
+            message: an internal error has occurred
+          schema:
+            $ref: '#/components/schemas/error'
+      description: Internal server error
+    created:
+      description: In case of success responses would not contains any body. Instead
+        of this you  can find link to the created resource in the `Location` header.
+      headers:
+        Location:
+          $ref: '#/components/headers/location'
+    get_crq:
+      content:
+        application/json:
+          example:
+            _links:
+              self: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+            id: zd008y7tix97kxtd6y8jddt8ab11m76f
+            summary: Bump service <service-name> version
+            description: |
+              Bump <service-name> version
+
+              CHANGELOG:
+                - minor fixes
+            type: autocrq
+            isAutoClose: true
+            createdAt: 1675368234
+          schema:
+            $ref: '#/components/schemas/crq'
+      description: An object that contains information about selected change request
+        and set of  useful links
+    not_found:
+      content:
+        application/json:
+          example:
+            code: not_found
+            message: The resource with specified identifier does not exist
+          schema:
+            $ref: '#/components/schemas/error'
+      description: The resource was not found
+    list_incidents:
+      content:
+        application/json:
+          example:
+            _links:
+              self: https://example.com/api/v1/im
+              base: https://example.com
+            limit: 10
+            total: 1
+            start: 0
+            data:
+            - _links:
+                self: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+              id: zd008y7tix97kxtd6y8jddt8ab11m76f
+              summary: Incident on payroll system
+              description: Since the release of a new Version the Data in the database
+                is all  scrambled up and the System wont start.
+              createdAt: 1675368234
+          schema:
+            $ref: '#/components/schemas/listIncidents_200_response'
+      description: "An object that contains filtered list of incidents. Each array\
+        \ element will \ncontains a set of useful links to the presented incident\
+        \ object. \n\nIn case if no one incident was matched to the set of filters\
+        \ than will returns \nan empty array.\n\nAlso an object will contain pagination\
+        \ information:\n  - set of links\n  - count elemnts in given array\n  - total\
+        \ incidents count that was matched with set of filters\n  - number of page\n\
+        \  - maximum records per page\n"
+    get_incident:
+      content:
+        application/json:
+          example:
+            _links:
+              self: https://example.com/api/v1/incident/zd008y7tix97kxtd6y8jddt8ab11m76f
+            id: zd008y7tix97kxtd6y8jddt8ab11m76f
+            summary: Incident on payroll system
+            description: Since the release of a new Version the Data in the database
+              is all  scrambled up and the System wont start.
+            createdAt: 1675368234
+          schema:
+            $ref: '#/components/schemas/incident'
+      description: An object that contains information about selected incident and
+        set of  useful links
+  schemas:
+    start_type:
+      default: 0
+      example: 1
+      minimum: 0
+      nullable: false
+      title: Start
+      type: integer
+    limit_type:
+      default: 20
+      example: 10
+      maximum: 50
+      minimum: 1
+      nullable: false
+      title: Limit
+      type: integer
+    link:
+      description: The link
+      example: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+      format: uri
+      nullable: false
+      title: Link
+      type: string
+    links:
+      additionalProperties: false
+      nullable: false
+      properties:
+        self:
+          description: The link
+          example: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+          format: uri
+          nullable: false
+          title: Link
+          type: string
+        base:
+          description: The link
+          example: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+          format: uri
+          nullable: false
+          title: Link
+          type: string
+        next:
+          description: The link
+          example: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+          format: uri
+          nullable: false
+          title: Link
+          type: string
+        prev:
+          description: The link
+          example: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+          format: uri
+          nullable: false
+          title: Link
+          type: string
+      required:
+      - base
+      - self
+      title: Links
+      type: object
+    list:
+      properties:
+        _links:
+          $ref: '#/components/schemas/links'
+        limit:
+          default: 20
+          example: 10
+          maximum: 50
+          minimum: 1
+          nullable: false
+          title: Limit
+          type: integer
+        start:
+          default: 0
+          example: 1
+          minimum: 0
+          nullable: false
+          title: Start
+          type: integer
+        total:
+          example: 10
+          maximum: 50
+          minimum: 1
+          nullable: false
+          type: integer
+      required:
+      - _links
+      - limit
+      - start
+      - total
+      title: List
+      type: object
+    self_link:
+      description: Set of links
+      example:
+        self: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+      nullable: false
+      properties:
+        self:
+          description: The link
+          example: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+          format: uri
+          nullable: false
+          title: Link
+          type: string
+      required:
+      - self
+      title: SelfLink
+      type: object
+    id:
+      deprecated: false
+      description: ""
+      example: 0a2uem8ox0otrbjtrsb3ilyppmefwc67
+      nullable: false
+      pattern: "^[0-9a-z]{32}$"
+      title: Unique identifier
+      type: string
+    timestamp:
+      example: 1675368234
+      format: int64
+      title: Timestamp
+      type: integer
+    crq:
+      example:
+        summary: Bump service <service-name> version
+        createdAt: 1675368234
+        _links:
+          self: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+        description: |
+          Bump <service-name> version
+
+          CHANGELOG:
+            - minor fixes
+        id: 0a2uem8ox0otrbjtrsb3ilyppmefwc67
+        isAutoClose: false
+        type: crq
+        updatedAt: 1675368234
+      nullable: false
+      properties:
+        _links:
+          $ref: '#/components/schemas/self_link'
+        id:
+          deprecated: false
+          description: ""
+          example: 0a2uem8ox0otrbjtrsb3ilyppmefwc67
+          nullable: false
+          pattern: "^[0-9a-z]{32}$"
+          title: Unique identifier
+          type: string
+        summary:
+          description: The short-form description of change
+          example: Bump service <service-name> version
+          type: string
+        description:
+          description: The long-form description of change
+          example: |
+            Bump <service-name> version
+
+            CHANGELOG:
+              - minor fixes
+          type: string
+        type:
+          default: crq
+          description: The type of change
+          enum:
+          - crq
+          - autocrq
+          example: crq
+          type: string
+        isAutoClose:
+          default: false
+          description: This flag indicates that change request should be closed automatically
+          example: false
+          type: boolean
+        createdAt:
+          example: 1675368234
+          format: int64
+          title: Timestamp
+          type: integer
+        updatedAt:
+          example: 1675368234
+          format: int64
+          title: Timestamp
+          type: integer
+      required:
+      - _links
+      - createdAt
+      - description
+      - id
+      - isAutoClose
+      - summary
+      - type
+      title: CRQ
+      type: object
+    error:
+      additionalProperties: false
+      nullable: false
+      properties:
+        code:
+          default: internal
+          description: An API error type
+          enum:
+          - invalid
+          - not_found
+          - internal
+          example: internal
+          type: string
+        message:
+          default: an internal error has occurred
+          description: Human readable message
+          example: an internal error has occurred
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    incident:
+      example:
+        summary: Incident on payroll system
+        createdAt: 1675368234
+        _links:
+          self: https://example.com/api/v1/crq/zd008y7tix97kxtd6y8jddt8ab11m76f
+        description: Since the release of a new Version the Data in the database is
+          all  scrambled up and the System wont start.
+        id: 0a2uem8ox0otrbjtrsb3ilyppmefwc67
+        updatedAt: 1675368234
+      nullable: false
+      properties:
+        _links:
+          $ref: '#/components/schemas/self_link'
+        id:
+          deprecated: false
+          description: ""
+          example: 0a2uem8ox0otrbjtrsb3ilyppmefwc67
+          nullable: false
+          pattern: "^[0-9a-z]{32}$"
+          title: Unique identifier
+          type: string
+        summary:
+          description: The short-form description of change
+          example: Incident on payroll system
+          type: string
+        description:
+          description: The long-form description of change
+          example: Since the release of a new Version the Data in the database is
+            all  scrambled up and the System wont start.
+          type: string
+        createdAt:
+          example: 1675368234
+          format: int64
+          title: Timestamp
+          type: integer
+        updatedAt:
+          example: 1675368234
+          format: int64
+          title: Timestamp
+          type: integer
+      required:
+      - _links
+      - createdAt
+      - description
+      - id
+      - summary
+      title: Incident
+      type: object
+    limitType:
+      $ref: '#/components/schemas/limit_type'
+    selfLink:
+      $ref: '#/components/schemas/self_link'
+    startType:
+      $ref: '#/components/schemas/start_type'
+    listCRQ_200_response_allOf:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/crq'
+          maxItems: 50
+          minItems: 0
+          type: array
+          uniqueItems: true
+      required:
+      - data
+      type: object
+    listCRQ_200_response:
+      allOf:
+      - $ref: '#/components/schemas/list'
+      - $ref: '#/components/schemas/listCRQ_200_response_allOf'
+    createCRQ_request:
+      additionalProperties: false
+      nullable: false
+      properties:
+        summary:
+          description: The short-form description of change
+          example: Bump service <service-name> version
+          type: string
+        description:
+          description: The long-form description of change
+          example: |
+            Bump <service-name> version
+
+            CHANGELOG:
+              - minor fixes
+          type: string
+        type:
+          default: crq
+          description: The type of change
+          enum:
+          - crq
+          - autocrq
+          example: crq
+          type: string
+        isAutoClose:
+          default: false
+          description: This flag indicates that change request should be closed  automatically
+          example: false
+          type: boolean
+      required:
+      - description
+      - summary
+      type: object
+    listIncidents_200_response_allOf:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/incident'
+          maxItems: 50
+          minItems: 0
+          type: array
+          uniqueItems: true
+      required:
+      - data
+      type: object
+    listIncidents_200_response:
+      allOf:
+      - $ref: '#/components/schemas/list'
+      - $ref: '#/components/schemas/listIncidents_200_response_allOf'
+    createIncident_request:
+      additionalProperties: false
+      nullable: false
+      properties:
+        summary:
+          description: The short-form description of change
+          example: Incident on payroll system
+          type: string
+        description:
+          description: The long-form description of change
+          example: Since the release of a new Version the Data in the database is
+            all  scrambled up and the System wont start.
+          type: string
+      required:
+      - description
+      - summary
+      type: object
