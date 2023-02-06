@@ -63,80 +63,14 @@ tasks:
       YAML format
     silent: true
 
-  generate:oapi:
+  generate:
     cmds:
       - task: bundle:yml
-      - test -d {{.ROOT_DIR}}/pkg/oapi || mkdir -p {{.ROOT_DIR}}/pkg/oapi
-      - >-
-        {{.ROOT_DIR}}/bin/oapi-codegen \
-          -generate types,client,chi-server,spec \
-          -package oapi \
-          -o {{.ROOT_DIR}}/pkg/oapi/change_management.go \
-          {{.TASKFILE_DIR}}/openapi.bundle.yml
-    deps:
-      - install:oapi
-    desc: Generates Go code with https://github.com/deepmap/oapi-codegen
-    sources:
-      - >-
-        {{.TASKFILE_DIR}}/openapi.bundle.yml
-    generates:
-      - >-
-        {{.ROOT_DIR}}/pkg/oapi/**
-    preconditions:
-      - test -s {{.TASKFILE_DIR}}/openapi.yml
-      - test -s {{.ROOT_DIR}}/bin/oapi-codegen
-    silent: true
-
-  install:oapi:
-    cmds:
-      - >-
-        GOBIN={{.ROOT_DIR}}/bin go install \
-          github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.12.4
-    status:
-      - test -s {{.ROOT_DIR}}/bin/oapi-codegen
-    internal: true
-    silent: true
-
-  generate:openapi:
-    cmds:
-      - task: bundle:yml
-      - test -d {{.ROOT_DIR}}/pkg/openapi || mkdir -p {{.ROOT_DIR}}/pkg/openapi
-      - >-
-        docker run \
-          --rm \
-          -v {{.ROOT_DIR}}:/src \
-          openapitools/openapi-generator-cli@{{.GENERATOR_SHA}} \
-          generate \
-          -i /src/api/v1/openapi.bundle.yml \
-          -g go \
-          -o /src/pkg/openapi \
-          --package-name openapi \
-          --skip-validate-spec
-    deps:
-      - lint
-    desc: >-
-      Generates Go code with https://github.com/OpenAPITools/openapi-generator
-    sources:
-      - >-
-        {{.TASKFILE_DIR}}/openapi.bundle.yml
-    generates:
-      - >-
-        {{.ROOT_DIR}}/pkg/openapi/**
-    preconditions:
-      - test -s {{.TASKFILE_DIR}}/openapi.yml
-    vars:
-      GENERATOR_SHA: >-
-        sha256:f5b6f0d17334d8da38cfe999fb47df4d530e583c23ea0c19a0fc8cb1fc6fc9dd
-    silent: true
-
-  generate:ogen:
-    cmds:
-      - task: bundle:yml
-      - test -d {{.ROOT_DIR}}/pkg/ogen || mkdir -p {{.ROOT_DIR}}/pkg/ogen
+      - test -d {{.ROOT_DIR}}/pkg/http/v1 || mkdir -p {{.ROOT_DIR}}/pkg/http/v1
       - >-
         {{.ROOT_DIR}}/bin/ogen \
-          -target {{.ROOT_DIR}}/pkg/ogen \
-          -package ogen \
+          -target {{.ROOT_DIR}}/pkg/http/v1 \
+          -package v1 \
           -clean \
           -generate-tests \
           -no-webhook-client \
@@ -150,7 +84,7 @@ tasks:
         {{.TASKFILE_DIR}}/openapi.bundle.yml
     generates:
       - >-
-        {{.ROOT_DIR}}/pkg/ogen/**
+        {{.ROOT_DIR}}/pkg/http/v1/**
     preconditions:
       - test -s {{.TASKFILE_DIR}}/openapi.yml
       - test -s {{.ROOT_DIR}}/bin/ogen

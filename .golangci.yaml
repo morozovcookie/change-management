@@ -1,3 +1,7 @@
+run:
+  skip-dirs:
+    - pkg/http/v1
+
 linters:
   enable-all: true
   disable:
