@@ -1,0 +1,41 @@
+version: '3'
+
+tasks:
+  lint:
+    cmds:
+      - >-
+        docker run \
+          -it \
+          --rm \
+          -v {{.ROOT_DIR}}:/src \
+          sqlfluff/sqlfluff@{{.SQLFLUFF_SHA}} \
+          lint /src/migrations
+    desc: Runs sqlfluff SQL linter
+    preconditions:
+      - test $(ls -1 *.sql 2>/dev/null | wc -l) -gt 0
+    vars:
+      SQLFLUFF_SHA: >-
+        sha256:eb771dfae677cd1057d0f27323487a67bbb6b5a1a17cbc9fce0235ee17aebd3c
+    silent: true
+
+  create:
+    cmds:
+      - >-
+        docker run \
+          -it \
+          --rm \
+          -v {{.TASKFILE_DIR}}:/migrations \
+          migrate/migrate@{{.MIGRATE_SHA}} \
+          create \
+          -ext sql \
+          -dir /migrations \
+          -seq \
+          {{.CLI_ARGS}}
+    desc: Create a set of timestamped up/down migrations
+    vars:
+      MIGRATE_SHA: >-
+        sha256:0ab1f7d276be40249640d34aad0978270c2c7654681c054a2e20b82ccf8d5dc6
+    generates:
+      - >-
+        {{.TASKFILE_DIR}}/*.sql
+    silent: true

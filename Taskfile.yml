@@ -4,6 +4,9 @@ includes:
   api:v1:
     taskfile: ./api/v1
     dir: ./api/v1
+  migration:
+    taskfile: ./migrations
+    dir: ./migrations
 
 vars:
   VERSION:
